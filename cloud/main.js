@@ -8,6 +8,8 @@ var logger = require("cloud/utils/logger");
 
 //
 AV.Cloud.define("hello", function(request, response) {
+
+    logger.debug(JSON.stringify(request));
     response.success("Hello world!");
 });
 
