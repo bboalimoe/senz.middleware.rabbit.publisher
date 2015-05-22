@@ -10,9 +10,8 @@
         "tracer" : "",
         "node-logentries": "0.0.2",
         "express": "3.x",
-        "jsonfile": ""
-        //"forever":"",
-        //"forever-monitor":""
+        "jsonfile": "",
+        "underscore":""
 
     },
     "scripts": {"start":"node  ./cloud/forever_monitor.js"}
