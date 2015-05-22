@@ -10,14 +10,25 @@ var debug = true;
 
 
 if(debug){
-    var log = require("tracer").colorConsole();
+    var log = require("tracer").colorConsole(
+    {
+            format : "{{timestamp}} <{{title}}> {{message}} (in {{file}}:{{line}})",
+            dateformat : "isoDateTime"
+    }
+    );
 }
+
 else{
     var logentries = require('node-logentries');
     var log = logentries.logger({
         token:'1a528118-f843-4124-87d9-2843eace4998'
     });
 }
+
+
+
+log.info("shit");
+
 
 
 exports.info = function(info){

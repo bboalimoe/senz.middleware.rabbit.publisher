@@ -1,6 +1,6 @@
 {
-    "name": "Senz-Log-Hooker",
-    "description": "Cloud Code test project.",
+    "name": "senz middlewares",
+    "description": "including installation to user, log to rabbit mq,etc",
     "version": "0.0.1",
     "private": true,
     "dependencies": {
