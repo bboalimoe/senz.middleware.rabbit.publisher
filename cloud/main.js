@@ -18,65 +18,116 @@ var _ = require("underscore");
 //};
 
 //
-AV.Cloud.define("initialze", function(request, response) {
+AV.Cloud.define("installation", function(request, response) {
 
     logger.debug(JSON.stringify(request.params));
-    var installation_params = request.params;
-    var installation_string = request.params.installation;
-    var installation = AV.Object.extend("Installation");
-    logger.error(installation_string);
-    var query = new AV.Query(installation);
-    query.equalTo("installation",installation_string);
-    var p = new AV.Promise();
+    var appid = request.params.appid;
+    var hardwareId = request.params.hardwareId;
+    var intallation_params = {
+        "hardwareId":hardwareId
+    };
 
-    query.find({
-        success:function(results){
-            logger.error("installed objects is " + JSON.stringify(results));
-            if(results.length == 0) {
-
-                var user_params = {};
-                user_params["username"] = "anonymous#" + installation_string;
-                user_params["password"] = installation_string;
-                var p2 = createUser(user_params);
-
-                p2.then(
-                    function (user) {
-                        installation_params["user"] = user;
-                        createInstallation(installation_params).then(
-                            function(user){
-                                logger.debug("2");
-
-                                logger.error("user is " + JSON.stringify(user));
-                                p.resolve(user);
-                        });
-                    },
-                    function (error) {
-                        p.reject(error);
-                    });
-
-            } else {
-                if (results.length > 1) {//clear the residual installations
-
-                    logger.warn("there are more than 2 installation with same string, contact the admin");
-                    var rest_installations = _.rest(results);//_can not be userd another time
-                    var destroy_promise = AV.Object.destroyAll(rest_installations);//if there are location mic or sensor data related to the deleted installation
-                }                                                                   //it doesn't matter
-
-               // logger.error("object user is " + JSON.stringify(Object.keys()) );
-
-                p.resolve(results[0].get("user"));
-            }
+    var Installation = AV.Object.extend("_Installation");
+    var application = AV.Object.extend("Application");
+    var app_query = new AV.Query(application);
+    var promise = new AV.Promise();
+    app_query.get(appid,{
+        success:function(app){
+            installation_params["application"] = app;
+            promise.resolve(installation_params);
         },
-        error:function(error){
-            logger.error("error is " + JSON.stringify(error));
-            if(error.code === AV.Error.OBJECT_NOT_FOUND){
-                p.reject("error is AV.Error.OBJECT_NOT_FOUND")
+        error:function(object,error){
+
+            if (error.code === AV.Error.OBJECT_NOT_FOUND) {
+                promise.reject("app object " + JSON.stringify(object) + "does not exist!");
             }
             else{
-                p.reject(error);
+                promise.reject("app object " + JSON.stringify(object) + "retrieve meets " + error);
             }
         }
     });
+    promise.then(
+        function(params){
+            var i = new Installation();
+            i.save(params,{
+                success:function(installation){
+
+                    response.success({"_InstallationId":installation.id});
+                },
+                error:function(object,error){
+                    var err = "installation object " + JSON.stringify(object) + "retrieve meets " + error
+                    logger.error(err);
+                    response.error({"error":err})
+                }
+            })
+        },
+        function(error){
+            logger.error(error);
+            response.error({"error":error})
+
+        }
+    );
+
+
+
+
+    //
+    //
+    //var installation_params = request.params;
+    //var installation_string = request.params.installation;
+    //logger.error(installation_string);
+    //var query = new AV.Query(installation);
+    //query.equalTo("installation",installation_string);
+    //var p = new AV.Promise();
+    //
+    //query.find({
+    //    success:function(results){
+    //        logger.error("installed objects is " + JSON.stringify(results));
+    //        if(results.length == 0) {
+    //
+    //            var user_params = {};
+    //            user_params["username"] = "anonymous#" + installation_string;
+    //            user_params["password"] = installation_string;
+    //            var p2 = createUser(user_params);
+    //
+    //            p2.then(
+    //                function (user) {
+    //                    installation_params["user"] = user;
+    //                    createInstallation(installation_params).then(
+    //                        function(user){
+    //                            logger.debug("2");
+    //
+    //                            logger.error("user is " + JSON.stringify(user));
+    //                            p.resolve(user);
+    //                    });
+    //                },
+    //                function (error) {
+    //                    p.reject(error);
+    //                });
+    //
+    //        } else {
+    //            if (results.length > 1) {//clear the residual installations
+    //
+    //                logger.warn("there are more than 2 installation with same string, contact the admin");
+    //                var rest_installations = _.rest(results);//_can not be userd another time
+    //                var destroy_promise = AV.Object.destroyAll(rest_installations);//if there are location mic or sensor data related to the deleted installation
+    //            }                                                                   //it doesn't matter
+    //
+    //           // logger.error("object user is " + JSON.stringify(Object.keys()) );
+    //
+    //            p.resolve(results[0].get("user"));
+    //        }
+    //    },
+    //    error:function(error){
+    //        logger.error("error is " + JSON.stringify(error));
+    //        if(error.code === AV.Error.OBJECT_NOT_FOUND){
+    //            p.reject("error is AV.Error.OBJECT_NOT_FOUND")
+    //        }
+    //        else{
+    //            p.reject(error);
+    //        }
+    //    }
+    //});
 
 //    var p1 = new AV.Promise();
 //    var promise = p.then(
@@ -140,7 +191,7 @@ AV.Cloud.define("initialze", function(request, response) {
 var createInstallation = function(params){
 
     var promise = new AV.Promise();
-    var installation = new AV.Object.extend("Installation");
+    var installation = new AV.Object.extend("_Installation");
     var i = new installation();
 
     i.save(params,{
