@@ -6,6 +6,8 @@ var publisher = require('cloud/rabbit_lib/publisher');
 //var motion = require("cloud/motions/init");
 var logger = require("cloud/utils/logger");
 var _ = require("underscore");
+var createInstallation = require("./utils/lean_utils.js").createInstallation;
+var createUser = require("./utils/lean_utils.js").createUser;
 
 //var installation_params = {
 //    "androidID":"123",
@@ -24,49 +26,50 @@ AV.Cloud.define("installation", function(request, response) {
     var appid = request.params.appid;
     var hardwareId = request.params.hardwareId;
     var intallation_params = {
-        "hardwareId":hardwareId
+        "hardwareId": hardwareId
     };
 
     var Installation = AV.Object.extend("_Installation");
     var application = AV.Object.extend("Application");
     var app_query = new AV.Query(application);
     var promise = new AV.Promise();
-    app_query.get(appid,{
-        success:function(app){
+    app_query.get(appid, {
+        success: function (app) {
             installation_params["application"] = app;
             promise.resolve(installation_params);
         },
-        error:function(object,error){
+        error: function (object, error) {
 
             if (error.code === AV.Error.OBJECT_NOT_FOUND) {
                 promise.reject("app object " + JSON.stringify(object) + "does not exist!");
             }
-            else{
+            else {
                 promise.reject("app object " + JSON.stringify(object) + "retrieve meets " + error);
             }
         }
     });
     promise.then(
-        function(params){
+        function (params) {
             var i = new Installation();
-            i.save(params,{
-                success:function(installation){
+            i.save(params, {
+                success: function (installation) {
 
-                    response.success({"_InstallationId":installation.id});
+                    response.success({"_InstallationId": installation.id});
                 },
-                error:function(object,error){
+                error: function (object, error) {
                     var err = "installation object " + JSON.stringify(object) + "retrieve meets " + error
                     logger.error(err);
-                    response.error({"error":err})
+                    response.error({"error": err})
                 }
             })
         },
-        function(error){
+        function (error) {
             logger.error(error);
-            response.error({"error":error})
+            response.error({"error": error})
 
         }
     );
+});
 
 
 
@@ -172,104 +175,64 @@ AV.Cloud.define("installation", function(request, response) {
 //        }
 //    );
 
-    p.then(
-        function(user){
-            //logger.debug("3");
+//    p.then(
+//        function(user){
+//            //logger.debug("3");
+//
+//            //logger.error("user is " + JSON.stringify(user) );
+//            response.success({"userId":user.id});
+//
+//        },
+//        function(error){
+//
+//            response.error({"error":error});
+//        }
+//    )
+//});
 
-            //logger.error("user is " + JSON.stringify(user) );
-            response.success({"userId":user.id});
 
-        },
-        function(error){
 
-            response.error({"error":error});
-        }
-    )
+
+
+
+AV.Cloud.afterSave('Log', function(request) {
+
+
+    var type = request.object.get["type"];
+    if(type === "sensor"){
+
+        logger.info('There is a new motion comming.');
+        msg = {
+            'objectId': request.object.id,
+            'timestamp': Date.now()
+        };
+        logger.info('The new motion object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_motion_arrival');
+
+    }
+    else if(type === "mic"){
+        logger.info('There is a new sound comming.');
+        msg = {
+            'objectId': request.object.id,
+            'timestamp': Date.now()
+        };
+        logger.info('The new sound object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_sound_arrival');
+    }
+    else if(type === "location"){
+
+        logger.info('There is a new location comming.');
+        msg = {
+            'objectId': request.object.id,
+            'timestamp': Date.now()
+        };
+        logger.info('The new location object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_location_arrival');
+    }
+    else{
+
+        logger.error("just saved object type doesn't match any value [sensor],[mic],[location]")
+    }
+
 });
 
-
-var createInstallation = function(params){
-
-    var promise = new AV.Promise();
-    var installation = new AV.Object.extend("_Installation");
-    var i = new installation();
-
-    i.save(params,{
-        success:function(i){
-            logger.debug("1");
-            promise.resolve(i.get("user"));
-        },
-        error:function(i,error){
-            promise.reject(error);
-        }
-    })
-    //
-    //
-    return promise;
-
-};
-
-var createUser = function(params){
-
-
-    var promise = new AV.Promise();
-    //create the user
-    var user = new AV.User();
-    var keys =  Object.keys(params);
-    //var _ = require("underscore");
-    //_.each(keys,function(key){
-    //    user.set(key, params[key]);
-    //});
-
-    //keys.forEach(
-    //    function(key) {
-    //        logger.error("fuck here");
-    //
-    //        user.set(key, params[key]);
-    //    });
-
-    user.signUp(params, {
-        success: function(user) {
-            // Hooray! Let them use the app now.
-            logger.debug(user.id );
-            promise.resolve(user)
-        },
-        error: function(user, error) {
-            // Show the error message somewhere and let the user try again.
-            logger.error("Error: " + error.code + " " + error.message);
-            promise.reject({"error":error.message});
-        }
-    });
-    return promise;
-};
-
-
-AV.Cloud.afterSave('UserLocation', function(request) {
-    logger.info('There is a new location comming.');
-    msg = {
-        'objectId': request.object.id,
-        'timestamp': Date.now()
-    };
-    logger.info('The new location object id: ' + request.object.id);
-    publisher.publishMessage(msg, 'new_location_arrival');
-});
-
-AV.Cloud.afterSave('UserMic', function(request) {
-    logger.info('There is a new sound comming.');
-    msg = {
-        'objectId': request.object.id,
-        'timestamp': Date.now()
-    };
-    logger.info('The new sound object id: ' + request.object.id);
-    publisher.publishMessage(msg, 'new_sound_arrival');
-});
-
-AV.Cloud.afterSave('UserSensor', function(request) {
-    logger.info('There is a new motion comming.');
-    msg = {
-        'objectId': request.object.id,
-        'timestamp': Date.now()
-    };
-    logger.info('The new motion object id: ' + request.object.id);
-    publisher.publishMessage(msg, 'new_motion_arrival');
-});
