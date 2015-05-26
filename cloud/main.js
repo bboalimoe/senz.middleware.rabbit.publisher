@@ -105,7 +105,7 @@ AV.Cloud.define("createInstallation", function(request, response) {
             i.save(params, {
                 success: function (installation) {
                     logger.debug("_Installation object is " + JSON.stringify(installation))
-                    response.success({"_InstallationId": installation.id});
+                    response.success({"id": installation.id});
                 },
                 error: function (object, error) {
                     var err = "installation object " + JSON.stringify(object) + "retrieve meets " + JSON.stringify(error);
