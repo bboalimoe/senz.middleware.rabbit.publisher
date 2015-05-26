@@ -25,7 +25,7 @@ var createUser = require("cloud/utils/lean_utils.js").createUser;
 var Installation = AV.Object.extend("_Installation");
 var application = AV.Object.extend("Application");
 
-AV.Cloud.define("installation", function(request, response) {
+AV.Cloud.define("createInstallation", function(request, response) {
 
     logger.debug(JSON.stringify(request.params));
 
