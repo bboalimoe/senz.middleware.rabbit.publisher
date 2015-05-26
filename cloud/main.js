@@ -6,8 +6,10 @@ var publisher = require('cloud/rabbit_lib/publisher');
 //var motion = require("cloud/motions/init");
 var logger = require("cloud/utils/logger");
 var _ = require("underscore");
-var createInstallation = require("./utils/lean_utils.js").createInstallation;
-var createUser = require("./utils/lean_utils.js").createUser;
+var n = require("nonce")();
+var uuid = require("uuid");
+var createInstallation = require("cloud/utils/lean_utils.js").createInstallation;
+var createUser = require("cloud/utils/lean_utils.js").createUser;
 
 //var installation_params = {
 //    "androidID":"123",
@@ -20,44 +22,93 @@ var createUser = require("./utils/lean_utils.js").createUser;
 //};
 
 //
+var Installation = AV.Object.extend("_Installation");
+var application = AV.Object.extend("Application");
+
 AV.Cloud.define("installation", function(request, response) {
 
     logger.debug(JSON.stringify(request.params));
+
     var appid = request.params.appid;
     var hardwareId = request.params.hardwareId;
-    var intallation_params = {
-        "hardwareId": hardwareId
+    var deviceType = request.params.deviceType;
+    var installationIdForBroadcasting = uuid.v4();
+
+
+    var installation_params = {
+        "hardwareId": hardwareId,
+        "deviceType": deviceType,
+        "installationId":installationIdForBroadcasting
     };
+    //now policy is one user corresponds to one hardwareid
+    //
+    var user_promise = new AV.Promise();
 
-    var Installation = AV.Object.extend("_Installation");
-    var application = AV.Object.extend("Application");
-    var app_query = new AV.Query(application);
-    var promise = new AV.Promise();
-    app_query.get(appid, {
-        success: function (app) {
-            installation_params["application"] = app;
-            promise.resolve(installation_params);
+    var user_query = new AV.Query(AV.User);
+
+    user_query.startsWith("username",hardwareId);
+    //logger.error("fuck here")
+
+    user_query.find({
+        success:function(users){
+            if(!users.length){
+                createUser({
+                    "username": hardwareId + n() + "anonymous",
+                    "password": hardwareId
+                    //"isAnonymous":true
+                },user_promise);
+            }
+            else{
+                var user = users[0];
+                user_promise.resolve(user);
+            }
         },
-        error: function (object, error) {
-
-            if (error.code === AV.Error.OBJECT_NOT_FOUND) {
-                promise.reject("app object " + JSON.stringify(object) + "does not exist!");
-            }
-            else {
-                promise.reject("app object " + JSON.stringify(object) + "retrieve meets " + error);
-            }
+        error:function(error){
+            user_promise.reject(error);
         }
     });
+
+
+    var app_query = new AV.Query(application);
+    var promise = new AV.Promise();
+    logger.error("outer userpromise is " + JSON.stringify(user_promise));
+    user_promise.then(
+        function(user){
+            logger.error("fuck herer");
+
+            app_query.get(appid, {
+                success: function (app) {
+                    installation_params["application"] = app;
+                    installation_params["user"] = user;
+                    promise.resolve(installation_params);
+                },
+                error: function (object, error) {
+
+                    if (error.code === AV.Error.OBJECT_NOT_FOUND) {
+                        promise.reject("app object " + JSON.stringify(object) + "does not exist!");
+                    }
+                    else {
+                        promise.reject("app object " + JSON.stringify(object) + "retrieve meets " + JSON.stringify(error));
+                    }
+                }
+            });
+
+        },
+        function(error){
+            promise.reject(error);
+        }
+    )
+
     promise.then(
         function (params) {
             var i = new Installation();
             i.save(params, {
                 success: function (installation) {
-
+                    logger.debug("_Installation object is " + JSON.stringify(installation))
                     response.success({"_InstallationId": installation.id});
                 },
                 error: function (object, error) {
-                    var err = "installation object " + JSON.stringify(object) + "retrieve meets " + error
+                    var err = "installation object " + JSON.stringify(object) + "retrieve meets " + JSON.stringify(error);
                     logger.error(err);
                     response.error({"error": err})
                 }
@@ -198,7 +249,8 @@ AV.Cloud.define("installation", function(request, response) {
 AV.Cloud.afterSave('Log', function(request) {
 
 
-    var type = request.object.get["type"];
+    var type = request.object.get("type");
+    logger.debug(type);
     if(type === "sensor"){
 
         logger.info('There is a new motion comming.');

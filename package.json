@@ -1,5 +1,5 @@
 {
-    "name": "senz middlewares",
+    "name": "senz-middlewares",
     "description": "including installation to user, log to rabbit mq,etc",
     "version": "0.0.1",
     "private": true,
@@ -11,7 +11,9 @@
         "node-logentries": "0.0.2",
         "express": "3.x",
         "jsonfile": "",
-        "underscore":""
+        "underscore":"",
+        "nonce":"",
+        "uuid":""
 
     },
     "scripts": {"start":"node  ./cloud/forever_monitor.js"}

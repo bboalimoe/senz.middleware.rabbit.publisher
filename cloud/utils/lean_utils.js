@@ -2,13 +2,15 @@
  * Created by zhanghengyang on 15/5/25.
  */
 
-var createUser = function(params){
+
+var logger = require("cloud/utils/logger.js");
+var createUser = function(params,promise){
 
 
-    var promise = new AV.Promise();
+    //var promise = new AV.Promise();
     //create the user
     var user = new AV.User();
-    var keys =  Object.keys(params);
+    //var keys =  Object.keys(params);
     //var _ = require("underscore");
     //_.each(keys,function(key){
     //    user.set(key, params[key]);
@@ -23,7 +25,10 @@ var createUser = function(params){
     user.signUp(params, {
         success: function(user) {
             // Hooray! Let them use the app now.
-            logger.debug(user.id );
+            logger.debug("created user id is " + user.id );
+
+            logger.error("inner userpromise is " + JSON.stringify(promise));
+
             promise.resolve(user)
         },
         error: function(user, error) {
@@ -32,7 +37,7 @@ var createUser = function(params){
             promise.reject({"error":error.message});
         }
     });
-    return promise;
+    //return promise;
 };
 
 

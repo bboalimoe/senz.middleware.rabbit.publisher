@@ -1,7 +1,7 @@
 {
-    "applicationName" : "senz_log_data_sample",
-    "applicationId": "mlg6g76on2b8xqzu2e2ghc2vkm4f0214smqgwzvg195qajbj",
-    "applicationKey": "7pu1411dmmuvrv51caudehxa1c7sdjcle07nh4knja6sm59m",
+    "applicationName" : "senz_log_tracer",
+    "applicationId": "9ra69chz8rbbl77mlplnl4l2pxyaclm612khhytztl8b1f9o",
+    "applicationKey": "1zohz2ihxp9dhqamhfpeaer8nh1ewqd9uephe9ztvkka544b",
     "global": {
         "avVersion": "0.3.1"
     }
