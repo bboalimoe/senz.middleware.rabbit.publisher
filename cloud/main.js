@@ -14,7 +14,7 @@ var createUser = require("cloud/utils/lean_utils.js").createUser;
 //var installation_params = {
 //    "androidID":"123",
 //    "deviceID":"234",
-//    "installation":"14ljalsdjgaouojlajdfl",
+//    "_Installation":"14ljalsdjgaouojlajdfl",
 //    "macAddress":"d8:e5:6d:a1:de:a2",
 //    "simSerialNumber":"12ljljljl"
 //
@@ -105,10 +105,10 @@ AV.Cloud.define("createInstallation", function(request, response) {
             i.save(params, {
                 success: function (installation) {
                     logger.debug("_Installation object is " + JSON.stringify(installation))
-                    response.success({"id": installation.id});
+                    response.success({"id": installation.id,"createdAt": installation.get("createdAt")});
                 },
                 error: function (object, error) {
-                    var err = "installation object " + JSON.stringify(object) + "retrieve meets " + JSON.stringify(error);
+                    var err = "_Installation object " + JSON.stringify(object) + "retrieve meets " + JSON.stringify(error);
                     logger.error(err);
                     response.error({"error": err})
                 }
@@ -128,10 +128,10 @@ AV.Cloud.define("createInstallation", function(request, response) {
     //
     //
     //var installation_params = request.params;
-    //var installation_string = request.params.installation;
+    //var installation_string = request.params._Installation;
     //logger.error(installation_string);
-    //var query = new AV.Query(installation);
-    //query.equalTo("installation",installation_string);
+    //var query = new AV.Query(_Installation);
+    //query.equalTo("_Installation",installation_string);
     //var p = new AV.Promise();
     //
     //query.find({
@@ -162,9 +162,9 @@ AV.Cloud.define("createInstallation", function(request, response) {
     //        } else {
     //            if (results.length > 1) {//clear the residual installations
     //
-    //                logger.warn("there are more than 2 installation with same string, contact the admin");
+    //                logger.warn("there are more than 2 _Installation with same string, contact the admin");
     //                var rest_installations = _.rest(results);//_can not be userd another time
-    //                var destroy_promise = AV.Object.destroyAll(rest_installations);//if there are location mic or sensor data related to the deleted installation
+    //                var destroy_promise = AV.Object.destroyAll(rest_installations);//if there are location mic or sensor data related to the deleted _Installation
     //            }                                                                   //it doesn't matter
     //
     //           // logger.error("object user is " + JSON.stringify(Object.keys()) );
@@ -199,9 +199,9 @@ AV.Cloud.define("createInstallation", function(request, response) {
 //                logger.error("user objects " + JSON.stringify(results) );
 //                if(results.length == 0){
 //                    var user_params = {};
-//                    user_params["installation"] = installation_obj;
+//                    user_params["_Installation"] = installation_obj;
 //                    user_params["username"] = "anonymous#" + installation_obj;
-//                    user_params["password"] = installation_obj.installation;
+//                    user_params["password"] = installation_obj._Installation;
 //                    //user.set("email", "shixiang@petchat.io");
 //// other fields can be set just like with AV.Object
 //                    user.set("phone", "13311280378");

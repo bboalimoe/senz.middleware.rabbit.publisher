@@ -2,19 +2,21 @@
  * Created by zhanghengyang on 15/5/25.
  */
 
-
 var logger = require("cloud/utils/logger.js");
+
+var _Installation = AV.Object.extend("_Installation");
+
 var createUser = function(params,promise){
 
 
     //var promise = new AV.Promise();
     //create the user
-    var user = new AV.User();
     //var keys =  Object.keys(params);
     //var _ = require("underscore");
     //_.each(keys,function(key){
     //    user.set(key, params[key]);
     //});
+    var user = new AV.User();
 
     //keys.forEach(
     //    function(key) {
@@ -22,7 +24,8 @@ var createUser = function(params,promise){
     //
     //        user.set(key, params[key]);
     //    });
-    user.signUp(params, {
+    //user.signUp
+    user.save(params, {
         success: function(user) {
             // Hooray! Let them use the app now.
             logger.debug("created user id is " + user.id );
@@ -44,8 +47,7 @@ var createUser = function(params,promise){
 var createInstallation = function(params){
 
     var promise = new AV.Promise();
-    var installation = new AV.Object.extend("_Installation");
-    var i = new installation();
+    var i = new _Installation();
 
     i.save(params,{
         success:function(i){
