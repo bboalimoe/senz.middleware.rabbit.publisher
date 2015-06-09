@@ -255,8 +255,9 @@ AV.Cloud.afterSave("_User",function(request){
     var user_id = request.object.id;
     var user_status = new UserStatus();
     console.log("fuck here");
-    //var user_pointer = AV.Object.createWithoutData("_User", user_id);
-    user_status.set("user", user_id);
+    var user_pointer = AV.Object.createWithoutData("_User", user_id);
+
+    user_status.set("user", user_pointer);
     user_status.save().then(
         function (result){
             console.log("A new user status is created.");
