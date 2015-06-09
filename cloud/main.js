@@ -105,7 +105,11 @@ AV.Cloud.define("createInstallation", function(request, response) {
             i.save(params, {
                 success: function (installation) {
                     logger.debug("_Installation object is " + JSON.stringify(installation))
-                    response.success({"id": installation.id,"createdAt": installation.get("createdAt")});
+                    logger.debug(_.has(installation,"createdAt"));
+                    //var ca = installation.get("createdAt");
+                    var createdAt = installation.createdAt
+                    //logger.error(cb);
+                    response.success({"id": installation.id,"createdAt": createdAt});
                 },
                 error: function (object, error) {
                     var err = "_Installation object " + JSON.stringify(object) + "retrieve meets " + JSON.stringify(error);
