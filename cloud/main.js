@@ -1,4 +1,7 @@
 var publisher = require('cloud/rabbit_lib/publisher');
+
+
+
 //var express = require("express");
 //var middle = require("./middlewares");
 //var location = require("cloud/places/init");
@@ -272,7 +275,7 @@ AV.Cloud.afterSave("_User",function(request){
             // response.error(error);
         }
     );
-})
+});
 
 
 
@@ -317,4 +320,5 @@ AV.Cloud.afterSave('Log', function(request) {
     }
 
 });
+
 
