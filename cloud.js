@@ -1,11 +1,12 @@
 var AV = require('leanengine');
-var publisher = require('cloud/rabbit_lib/publisher');
-var logger = require("cloud/utils/logger");
+var publisher = require('./essential_modules/rabbit_lib/publisher');
+var log = require("./essential_modules/utils/logger").log;
+var logger = new log("cloud module");
 var _ = require("underscore");
 var n = require("nonce")();
 var uuid = require("uuid");
-var createInstallation = require("cloud/utils/lean_utils.js").createInstallation;
-var createUser = require("cloud/utils/lean_utils.js").createUser;
+var createInstallation = require("./essential_modules/utils/lean_utils.js").createInstallation;
+var createUser = require("./essential_modules/utils/lean_utils.js").createUser;
 
 /**
  * 一个简单的云代码方法
@@ -13,9 +14,6 @@ var createUser = require("cloud/utils/lean_utils.js").createUser;
 AV.Cloud.define('hello', function(request, response) {
     response.success('Hello world!');
 });
-
-
-
 
 //var installation_params = {
 //    "androidID":"123",
@@ -33,7 +31,7 @@ var application = AV.Object.extend("Application");
 
 AV.Cloud.define("createInstallation", function(request, response) {
 
-    logger.debug(JSON.stringify(request.params));
+    logger.debug("createInstallation",JSON.stringify(request.params));
 
     var appid = request.params.appid;
     var hardwareId = request.params.hardwareId;
@@ -77,10 +75,9 @@ AV.Cloud.define("createInstallation", function(request, response) {
 
     var app_query = new AV.Query(application);
     var promise = new AV.Promise();
-    logger.error("outer userpromise is " + JSON.stringify(user_promise));
     user_promise.then(
         function(user){
-            logger.error("fuck herer");
+            logger.info("createInstallation","User created!");
 
             app_query.get(appid, {
                 success: function (app) {
@@ -110,8 +107,7 @@ AV.Cloud.define("createInstallation", function(request, response) {
             var i = new Installation();
             i.save(params, {
                 success: function (installation) {
-                    logger.debug("_Installation object is " + JSON.stringify(installation))
-                    logger.debug(_.has(installation,"createdAt"));
+                    logger.debug("createInstallation","_Installation object is " + JSON.stringify(installation))
                     //var ca = installation.get("createdAt");
                     var createdAt = installation.createdAt
                     //logger.error(cb);
@@ -119,13 +115,13 @@ AV.Cloud.define("createInstallation", function(request, response) {
                 },
                 error: function (object, error) {
                     var err = "_Installation object " + JSON.stringify(object) + "retrieve meets " + JSON.stringify(error);
-                    logger.error(err);
+                    logger.error("createInstallation",err);
                     response.error({"error": err})
                 }
             })
         },
         function (error) {
-            logger.error(error);
+            logger.error("createInstallation",error);
             response.error({"error": error})
 
         }
@@ -135,22 +131,20 @@ AV.Cloud.define("createInstallation", function(request, response) {
 
 
 
-
-
 var UserStatus = AV.Object.extend("UserStatus");
 
 
 AV.Cloud.afterSave("_User",function(request){
-    console.log("A new user is created.");
+
+    logger.info("UserStatus Hook","A new user is created.");
     var user_id = request.object.id;
     var user_status = new UserStatus();
-    console.log("fuck here");
     var user_pointer = AV.Object.createWithoutData("_User", user_id);
 
     user_status.set("user", user_pointer);
     user_status.save().then(
         function (result){
-            console.log("A new user status is created.");
+            logger.info("UserStatus Hook","A new user status is created.");
             // response.success({
             //         code: 0,
             //         userStatusId: result.id,
@@ -158,7 +152,7 @@ AV.Cloud.afterSave("_User",function(request){
             // });
         },
         function (error){
-            console.log("A user's status created failed. error msg:" + JSON.stringify(error));
+            logger.error("UserStatus Hook","A user's status created failed. error msg: " + JSON.stringify(error));
             // response.error(error);
         }
     );
@@ -170,40 +164,40 @@ AV.Cloud.afterSave('Log', function(request) {
 
 
     var type = request.object.get("type");
-    logger.debug(type);
+    logger.debug("Log to Rabbitmq", type);
     if(type === "sensor"){
 
-        logger.info('There is a new motion comming.');
+        logger.info("Log to Rabbitmq",'There is a new motion comming.');
         msg = {
             'objectId': request.object.id,
             'timestamp': Date.now()
         };
-        logger.info('The new motion object id: ' + request.object.id);
+        logger.info("Log to Rabbitmq",'The new motion object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_motion_arrival');
 
     }
     else if(type === "mic"){
-        logger.info('There is a new sound comming.');
+        logger.info("Log to Rabbitmq",'There is a new sound comming.');
         msg = {
             'objectId': request.object.id,
             'timestamp': Date.now()
         };
-        logger.info('The new sound object id: ' + request.object.id);
+        logger.info("Log to Rabbitmq",'The new sound object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_sound_arrival');
     }
     else if(type === "location"){
 
-        logger.info('There is a new location comming.');
+        logger.info("Log to Rabbitmq",'There is a new location comming.');
         msg = {
             'objectId': request.object.id,
             'timestamp': Date.now()
         };
-        logger.info('The new location object id: ' + request.object.id);
+        logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_location_arrival');
     }
     else{
 
-        logger.error("just saved object type doesn't match any value [sensor],[mic],[location]")
+        logger.error("Log to Rabbitmq","just saved object type doesn't match any value [sensor],[mic],[location]")
     }
 
 });
