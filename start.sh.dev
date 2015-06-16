@@ -1,0 +1,8 @@
+export dev_LC_APP_ID=168j9dwlm7vycnljl4h8x3jmkpokc7rq5ywf4nd7ffww3mbz
+export dev_LC_APP_KEY=gdvh4n189as9flc999ei21lc1bnya7cr4q3d1bfdh43u5l2t
+export dev_LC_APP_MASTER_KEY=87fqgx8m7521szcvbztb1g6w9l7eljrg09zibbnqj7tnvrfu
+
+
+export LC_APP_PORT=3000
+
+npm start
