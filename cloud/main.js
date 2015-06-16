@@ -1,4 +1,7 @@
 var publisher = require('cloud/rabbit_lib/publisher');
+
+
+
 //var express = require("express");
 //var middle = require("./middlewares");
 //var location = require("cloud/places/init");
@@ -97,7 +100,7 @@ AV.Cloud.define("createInstallation", function(request, response) {
         function(error){
             promise.reject(error);
         }
-    )
+    );
 
     promise.then(
         function (params) {
@@ -256,6 +259,7 @@ AV.Cloud.afterSave("_User",function(request){
     var user_status = new UserStatus();
     console.log("fuck here");
     var user_pointer = AV.Object.createWithoutData("_User", user_id);
+
     user_status.set("user", user_pointer);
     user_status.save().then(
         function (result){
@@ -267,11 +271,11 @@ AV.Cloud.afterSave("_User",function(request){
             // });
         },
         function (error){
-            console.log("A user's status created failed. error msg:" + error);
+            console.log("A user's status created failed. error msg:" + JSON.stringify(error));
             // response.error(error);
         }
     );
-})
+});
 
 
 
@@ -316,4 +320,5 @@ AV.Cloud.afterSave('Log', function(request) {
     }
 
 });
+
 
