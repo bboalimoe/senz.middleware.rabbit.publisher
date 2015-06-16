@@ -3,7 +3,7 @@
  */
 
 var AV = require("leanengine");
-var log = require("./logger.js");
+var log = require("./logger.js").log;
 var logger = new log("lean_utils");
 var _Installation = AV.Object.extend("_Installation");
 

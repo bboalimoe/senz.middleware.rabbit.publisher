@@ -1,5 +1,5 @@
 var AV = require('leanengine');
-var log = require("./essential_modules/utils/logger.js").log
+var log = require("./essential_modules/utils/logger.js").log;
 var logger = new log("Entrance module");
 var APP_ID = process.env.LC_APP_ID;
 var APP_KEY = process.env.LC_APP_KEY;

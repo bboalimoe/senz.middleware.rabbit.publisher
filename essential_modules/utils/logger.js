@@ -16,9 +16,15 @@ var log = function(log_tag) {
         );
     }
     else {
-        var logentries = require('node-logentries');
+        if(process.env.APP_ENV === "prod"){
+            var token = "0e58e820-ec05-46a3-98ee-ba31f16e301c"
+        }
+        else{
+            var token = '52f63fc6-4162-46a9-839b-4977f64dc11f'
+        }
+            var logentries = require('node-logentries');
         var log = logentries.logger({
-            token: 'ad2b1f4a-8c29-487a-ad8b-cae67c834c4b'
+            token: token
         });
     }
 
