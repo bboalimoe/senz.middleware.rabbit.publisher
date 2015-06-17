@@ -13,9 +13,9 @@ var app = express();
 var bugsnag = require("bugsnag");
 logger.debug("",JSON.stringify(process.env));
 if(process.env.APP_ENV === "prod"){
-    bugsnag_token = "6d2d076a299f9c0bf18e06312fa00065"
+    bugsnag_token = "6d2d076a299f9c0bf"
 }else{
-    bugsnag_token = "464c8f44539ff84fe3aa5e4059d35e9c"
+    bugsnag_token = "464c8f44539ff84fc"
 }
 bugsnag.register(bugsnag_token);
 logger.info("","bugsnag initialized");
