@@ -23,7 +23,8 @@
         "jsonfile": "",
         "underscore":"",
         "nonce":"",
-        "uuid":""
+        "uuid":"",
+        "bugsnag":""
 
     },
     "license":"MIT",

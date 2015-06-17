@@ -12,6 +12,8 @@ var createUser = require("./essential_modules/utils/lean_utils.js").createUser;
  * 一个简单的云代码方法
  */
 AV.Cloud.define('hello', function(request, response) {
+
+    sb.sb
     response.success('Hello world!');
 });
 
@@ -51,7 +53,6 @@ AV.Cloud.define("createInstallation", function(request, response) {
     var user_query = new AV.Query(AV.User);
 
     user_query.startsWith("username",hardwareId);
-    //logger.error("fuck here")
 
     user_query.find({
         success:function(users){
@@ -110,7 +111,6 @@ AV.Cloud.define("createInstallation", function(request, response) {
                     logger.debug("createInstallation","_Installation object is " + JSON.stringify(installation))
                     //var ca = installation.get("createdAt");
                     var createdAt = installation.createdAt
-                    //logger.error(cb);
                     response.success({"id": installation.id,"createdAt": createdAt});
                 },
                 error: function (object, error) {
@@ -135,6 +135,7 @@ var UserStatus = AV.Object.extend("UserStatus");
 
 
 AV.Cloud.afterSave("_User",function(request){
+
 
     logger.info("UserStatus Hook","A new user is created.");
     var user_id = request.object.id;

@@ -5,3 +5,4 @@ export APP_ENV = "prod"
 
 export LC_APP_PORT=3000
 
+npm start
