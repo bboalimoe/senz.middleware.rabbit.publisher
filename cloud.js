@@ -30,7 +30,6 @@ AV.Cloud.define('hello', function(request, response) {
             //bug_init();
     logger.info("","bugsnag initialized");
     
-    sb.sb
     response.success('Hello world!');
 });
 
