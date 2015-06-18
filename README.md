@@ -1,2 +1,1 @@
-# senz-log-hook
-# lots of modules
+there is some info 
