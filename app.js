@@ -7,24 +7,15 @@ var cloud = require('./cloud');
 var log = require("./essential_modules/utils/logger.js").log
 var logger = new log("App module");
 var app = express();
-
-
-//bugsnag initialization
-var bugsnag = require("bugsnag");
-logger.debug("",JSON.stringify(process.env));
-if(process.env.APP_ENV === "prod"){
-    bugsnag_token = "6d2d076a299f9c0bf"
-}else{
-    bugsnag_token = "464c8f44539ff84fc"
-}
-bugsnag.register(bugsnag_token);
-logger.info("","bugsnag initialized");
-
-
+//var bugsnag = require("bugsnag");
+//var bug_init = require("./essential_modules/utils/bug_catch.js");
+//bug_init();
+//logger.info("","bugsnag initialized");
 
 app.use(cloud);
 
-app.use(bugsnag.requestHandler); //To ensure that asynchronous errors are routed to the error handler, add the requestHandler middleware to your app as the first middleware
+//app.use(bugsnag.requestHandler); //To ensure that asynchronous errors are routed to the error handler, add the requestHandler middleware to your app as the first middleware
+
 
 
 // 加载云代码方法
@@ -33,7 +24,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(bugsnag.errorHandler); //make sure to add this after all other middleware, but before any "error" middleware:
 
 
 
@@ -67,14 +57,8 @@ app.get('/', function(req, res) {
 //}
 //
 // 如果是非开发环境，则页面只输出简单的错误信息
-app.use(function(err, req, res, next) {
-    console.log("fuckn\n\n\n\n\n\aaa" + err + "\n\n\n\n\n\n\naljljglajldjfaljdlfajdslkjflajdslfjalkjdlfjlajdljfkajdf");
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
-});
+
+//app.use(bugsnag.errorHandler); //make sure to add this after all other middleware, but before any "error" middleware:
 
 
 
