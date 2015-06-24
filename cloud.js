@@ -15,19 +15,17 @@ var bugsnag = require("bugsnag");
  */
 AV.Cloud.define('hello', function(request, response) {
 
-    if(process.env.APP_ENV === "prod"){
-        bugsnag_token = "6d2d076a299f9c0bf18e06312fa00065"
-    }else{
-        bugsnag_token = "464c8f44539ff84fe3aa5e4059d35e9c"
-    }
+    //bugsnag deprecated!
+    //if(process.env.APP_ENV === "prod"){
+    //    bugsnag_token = "6d2d076a299f9c0bf18e06312fa00065"
+    //}else{
+    //    bugsnag_token = "464c8f44539ff84fe3aa5e4059d35e9c"
+    //}
+    //
+    //bugsnag.register(bugsnag_token);
+    //
+    //
 
-    bugsnag.register(bugsnag_token);
-    bugsnag.notify(1111);
-
-
-    //var bugsnag = require("bugsnag");
-            //var bug_init = require("./essential_modules/utils/bug_catch.js");
-            //bug_init();
     logger.info("","bugsnag initialized");
     
     response.success('Hello world!');
