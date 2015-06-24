@@ -144,6 +144,44 @@ AV.Cloud.define("createInstallation", function(request, response) {
 
 
 
+//AV.Cloud.afterSave("_Installation",function(request){
+//
+//    var installation_object = request.object;
+//    logger.info("_Installation Hook",JSON.stringify(installation_object));
+//    var appid = "168j9dwlm7vycnljl4h8x3jmkpokc7rq5ywf4nd7ffww3mbz";
+//    var appkey = "gdvh4n189as9flc999ei21lc1bnya7cr4q3d1bfdh43u5l2t";
+//    delete installation_object.updatedAt
+//    delete installation_object.createdAt
+//
+//    lean_post(appid,appkey,installation_object,"_Installation")
+//
+//});
+//
+//
+//var lean_post = function (APP_ID, APP_KEY, params,classname) {
+//
+//    logger.info("Post installation", "Lean post started");
+//    req.post(
+//        {
+//            url: "https://leancloud.cn/1.1/classes/"+classname,
+//            headers:{
+//                "X-AVOSCloud-Application-Id":APP_ID,
+//                "X-AVOSCloud-Application-Key":APP_KEY
+//            },
+//            json: params
+//        },
+//        function(err,res,body){
+//            if(err != null || (res.statusCode != 200 && res.statusCode !=201) ) {
+//                logger.error("Post installation","Request error log is" + err);
+//            }
+//            else {
+//                var body_str = JSON.stringify(body)
+//                logger.info("Post installation","Body is " + body_str);
+//            }
+//        }
+//    );
+//
+//};
 
 var UserStatus = AV.Object.extend("UserStatus");
 
@@ -176,6 +214,9 @@ AV.Cloud.afterSave("_User",function(request){
 
 
 AV.Cloud.afterSave('Log', function(request) {
+
+
+
 
 
     var type = request.object.get("type");
