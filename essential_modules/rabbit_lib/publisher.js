@@ -22,7 +22,7 @@ publishMsg = function(msg, event) {
     //not right
     var type = "senz.message." + routing_key + env;
     logger.info("","event is " + type);
-    console.log(JSON.stringify(rabbit));
+    console.log(rabbit);
     rabbit.publish(event + env, {
         type: type,
         body: msg
