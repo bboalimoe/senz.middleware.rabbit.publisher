@@ -27,11 +27,7 @@ var base_url_in_app_timeline = "http://senz_context_awareness.avosapps.com/users
 
 app.get('/context/installations/:installation_id/', function(req, res) {
 
-    console.log("fuck")
-    var limit = req.query.limit;
-    console.log(limit)
     var installation_id = req.params.installation_id
-    console.log(installation_id);
     logger.debug("Status module",installation_id)
     var query = new AV.Query(_Installation)
     query.include("user")
@@ -85,7 +81,14 @@ app.get('/context/installations/:installation_id/', function(req, res) {
 
 app.get('/events/installations/:installation_id/', function(req, res) {
 
-    console.log("fuck")
+
+    var limit = req.query.limit;
+    if(_.has(req.query,"limit")){
+        var params_string = "/events/?" + limit
+    }else{
+        var params_string = "/events/"
+    }
+
     var installation_id = req.params.installation_id
     console.log(installation_id);
     logger.debug("Status module",installation_id)
@@ -97,7 +100,7 @@ app.get('/events/installations/:installation_id/', function(req, res) {
             var userid = installation.get("user").id
             console.log(userid)
 
-            req_lib.get(base_url_in_app_timeline + userid + "/events/",function(err,response,body_string){
+            req_lib.get(base_url_in_app_timeline + userid + params_string,function(err,response,body_string){
 
                 var body = JSON.parse(body_string);
                 if(err != null ||  (response.statusCode != 200 && response.statusCode !=201) || body.code == 1 ){
