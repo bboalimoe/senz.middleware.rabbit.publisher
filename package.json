@@ -24,7 +24,8 @@
         "underscore":"",
         "nonce":"",
         "uuid":"",
-        "bugsnag":""
+        "bugsnag":"",
+        "request":""
 
     },
     "license":"MIT",

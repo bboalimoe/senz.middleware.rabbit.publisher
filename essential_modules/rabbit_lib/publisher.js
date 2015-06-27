@@ -8,7 +8,7 @@ var env = null;
 if(process.env.APP_ENV === "prod"){
     env = "_prod"
 
-}else if(process.env.APP_ENV === "test"){
+}else {
 
     env = "_test"
 }
@@ -22,7 +22,6 @@ publishMsg = function(msg, event) {
     //not right
     var type = "senz.message." + routing_key + env;
     logger.info("","event is " + type);
-    console.log(rabbit);
     rabbit.publish(event + env, {
         type: type,
         body: msg
