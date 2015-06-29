@@ -27,7 +27,5 @@
         "bugsnag":"",
         "request":""
 
-    },
-    "license":"MIT",
-    "scripts": {"start":"node  ./cloud/forever_monitor.js"}
+    }
 }
