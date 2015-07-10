@@ -125,7 +125,8 @@ AV.Cloud.define("createInstallation", function(request, response) {
                     logger.debug("createInstallation","_Installation object is " + JSON.stringify(installation))
                     //var ca = installation.get("createdAt");
                     var createdAt = installation.createdAt
-                    response.success({"id": installation.id,"createdAt": createdAt});
+                    var userId = installation.get("user").id
+                    response.success({"id": installation.id,"createdAt": createdAt, "userId": userId});
                 },
                 error: function (object, error) {
                     var err = "_Installation object " + JSON.stringify(object) + "retrieve meets " + JSON.stringify(error);
@@ -214,9 +215,6 @@ AV.Cloud.afterSave("_User",function(request){
 
 
 AV.Cloud.afterSave('Log', function(request) {
-
-
-
 
 
     var type = request.object.get("type");
