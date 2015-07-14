@@ -251,13 +251,13 @@ AV.Cloud.afterSave('Log', function(request) {
     }
     else if(type === "calendar"){
 
-        logger.info("Log to Rabbitmq",'There is a new location comming.');
+        logger.info("Log to Rabbitmq",'There is a new calendar comming.');
         msg = {
-            'objectId': request.object.id,
+            'object': request.object,
             'timestamp': Date.now()
         };
-        logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
-        publisher.publishMessage(msg, 'new_location_arrival');
+        logger.info("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_calendar_arrival');
     }
     else{
 
