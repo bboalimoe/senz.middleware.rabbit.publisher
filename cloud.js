@@ -249,6 +249,16 @@ AV.Cloud.afterSave('Log', function(request) {
         logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_location_arrival');
     }
+    else if(type === "calendar"){
+
+        logger.info("Log to Rabbitmq",'There is a new location comming.');
+        msg = {
+            'objectId': request.object.id,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_location_arrival');
+    }
     else{
 
         logger.error("Log to Rabbitmq","just saved object type doesn't match any value [sensor],[mic],[location]")

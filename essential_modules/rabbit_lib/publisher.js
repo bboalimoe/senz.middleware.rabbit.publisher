@@ -19,6 +19,7 @@ publishMsg = function(msg, event) {
     if(event == "new_motion_arrival"){var routing_key = "motion";}
     if(event == "new_sound_arrival"){var routing_key = "sound";}
     if(event == "new_location_arrival"){var routing_key = "location";}
+    if(event == "new_calendar_arrival"){var routing_key = "calendar";}
     //not right
     var type = "senz.message." + routing_key + env;
     logger.info("","event is " + type);
