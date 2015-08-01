@@ -221,7 +221,7 @@ AV.Cloud.afterSave('Log', function(request) {
 
     var type = request.object.get("type");
     logger.debug("Log to Rabbitmq", type);
-    if(type === "sensor"){
+    if(type === "accSensor"){
 
         logger.info("Log to Rabbitmq",'There is a new motion comming.');
         msg = {
