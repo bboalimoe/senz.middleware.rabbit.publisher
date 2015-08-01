@@ -49,17 +49,19 @@ AV.Cloud.define("createInstallation", function(request, response) {
 
     logger.debug("createInstallation",JSON.stringify(request.params));
 
-    var appid = request.params.appid;
-    var hardwareId = request.params.hardwareId;
-    var deviceType = request.params.deviceType;
-    var installationIdForBroadcasting = uuid.v4();
-
+    var appid = request.params.appid,
+        hardwareId = request.params.hardwareId,
+        deviceType = request.params.deviceType,
+        installationIdForBroadcasting = uuid.v4(),
+        deviceToken = uuid.v4() ;
 
     var installation_params = {
         "hardwareId": hardwareId,
         "deviceType": deviceType,
-        "installationId":installationIdForBroadcasting
+        "installationId":installationIdForBroadcasting,
+        "deviceToken":deviceToken
     };
+
     //now policy is one user corresponds to one hardwareid
     //
     var user_promise = new AV.Promise();
@@ -258,6 +260,15 @@ AV.Cloud.afterSave('Log', function(request) {
         };
         logger.info("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_calendar_arrival');
+    }else if(type === "application"){
+
+        logger.info("Log to Rabbitmq",'There is a new applist comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_applist_arrival');
     }
     else{
 
