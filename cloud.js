@@ -75,7 +75,8 @@ AV.Cloud.define("createInstallation", function(request, response) {
             if(!users.length){
                 createUser({
                     "username": hardwareId + n() + "anonymous",
-                    "password": hardwareId
+                    "password": hardwareId,
+                    "os": deviceType
                     //"isAnonymous":true
                 },user_promise);
             }
