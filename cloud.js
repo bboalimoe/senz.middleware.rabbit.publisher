@@ -8,7 +8,7 @@ var uuid = require("uuid");
 var createInstallation = require("./essential_modules/utils/lean_utils.js").createInstallation;
 var createUser = require("./essential_modules/utils/lean_utils.js").createUser;
 var bugsnag = require("bugsnag");
-
+var converter = require("./essential_modules/utils/coordinate_trans.js")
 
 /**
  * 一个简单的云代码方法
@@ -215,6 +215,32 @@ AV.Cloud.afterSave("_User",function(request){
     );
 });
 
+
+AV.Cloud.beforeSave("Log", function(request, response){
+
+    var pre_type = request.object.get("type")
+    var pre_source = request.object.get("source")
+    var pre_location = request.object.get("location")
+    console.log(pre_location)
+    console.log(pre_location.latitude)
+
+
+    if( pre_type == "location" && pre_source == "internal"){
+        c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude)
+        source = "baidu offline converter"
+        location = pre_location
+        location.latitude = c_location.lat
+        location.longitude = c_location.lng
+        request.object.set("location", location)
+        request.object.set("source", source)
+    }
+
+    response.success();
+
+
+
+
+});
 
 
 AV.Cloud.afterSave('Log', function(request) {
