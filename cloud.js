@@ -221,9 +221,7 @@ AV.Cloud.beforeSave("Log", function(request, response){
     var pre_type = request.object.get("type")
     var pre_source = request.object.get("source")
     var pre_location = request.object.get("location")
-    console.log(pre_location)
-    console.log(pre_location.latitude)
-
+    
 
     if( pre_type == "location" && pre_source == "internal"){
         c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude)
