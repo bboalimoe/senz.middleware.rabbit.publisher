@@ -25,7 +25,8 @@
         "nonce":"",
         "uuid":"",
         "bugsnag":"",
-        "request":""
+        "request":"",
+        "hzip":""
 
     }
 }

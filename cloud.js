@@ -9,6 +9,8 @@ var createInstallation = require("./essential_modules/utils/lean_utils.js").crea
 var createUser = require("./essential_modules/utils/lean_utils.js").createUser;
 var bugsnag = require("bugsnag");
 var converter = require("./essential_modules/utils/coordinate_trans.js")
+var zlib = require("zlib");
+
 
 /**
  * 一个简单的云代码方法
@@ -216,12 +218,31 @@ AV.Cloud.afterSave("_User",function(request){
 });
 
 
+
+
+
+
+zlib.deflate(input, function(err, buffer) {
+    if (!err) {
+        base64_string = buffer.toString("utf8")
+        console.log(base64_string);
+
+        base64_buffer = new Buffer(base64_string,"utf8")
+        zlib.unzip(base64_buffer,function(err, buffer){
+            console.log(JSON.stringify(err))
+            console.log(JSON.stringify(buffer.toString()))
+        })
+    }
+});
+
+
+
 AV.Cloud.beforeSave("Log", function(request, response){
 
     var pre_type = request.object.get("type")
     var pre_source = request.object.get("source")
     var pre_location = request.object.get("location")
-    
+    var compressed = request.object.get("compressed")
 
     if( pre_type == "location" && pre_source == "internal"){
         c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude)
@@ -233,7 +254,32 @@ AV.Cloud.beforeSave("Log", function(request, response){
         request.object.set("source", source)
     }
 
-    response.success();
+    if (pre_type == "accSensor" && compressed == "gunzip" ){
+
+        var pre_value = request.object.get("value")
+        var compressed_base64_string = pre_value.events
+        var buffer = new Buffer(compressed_base64_string,"base64");
+        zlib.unzip(buffer,function(err, buffer){
+            if(!err) {
+                console.log(JSON.stringify(buffer.toString()))
+                pre_value.events = JSON.parse(buffer.toString())
+                request.object.set("compressed","ungzipped")
+                request.object.set("value", pre_value)
+
+                response.success();
+            }
+            else{
+                console.log(JSON.stringify(err))
+                response.error(err)
+            }
+        })
+
+
+    }
+    else{
+        response.success();
+    }
+
 
 
 
