@@ -221,22 +221,6 @@ AV.Cloud.afterSave("_User",function(request){
 
 
 
-
-zlib.deflate(input, function(err, buffer) {
-    if (!err) {
-        base64_string = buffer.toString("utf8")
-        console.log(base64_string);
-
-        base64_buffer = new Buffer(base64_string,"utf8")
-        zlib.unzip(base64_buffer,function(err, buffer){
-            console.log(JSON.stringify(err))
-            console.log(JSON.stringify(buffer.toString()))
-        })
-    }
-});
-
-
-
 AV.Cloud.beforeSave("Log", function(request, response){
 
     var pre_type = request.object.get("type")
@@ -254,14 +238,14 @@ AV.Cloud.beforeSave("Log", function(request, response){
         request.object.set("source", source)
     }
 
-    if (pre_type == "accSensor" && compressed == "gunzip" ){
+    if (pre_type == "accSensor" && compressed == "gzip" ){
 
         var pre_value = request.object.get("value")
         var compressed_base64_string = pre_value.events
         var buffer = new Buffer(compressed_base64_string,"base64");
         zlib.unzip(buffer,function(err, buffer){
             if(!err) {
-                console.log(JSON.stringify(buffer.toString()))
+                //console.log(JSON.stringify(buffer.toString()))
                 pre_value.events = JSON.parse(buffer.toString())
                 request.object.set("compressed","ungzipped")
                 request.object.set("value", pre_value)
