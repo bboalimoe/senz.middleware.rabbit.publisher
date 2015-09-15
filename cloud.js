@@ -324,9 +324,18 @@ AV.Cloud.afterSave('Log', function(request) {
         };
         logger.info("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_applist_arrival');
+    }else if(type === "predictedMotion"){
+
+        logger.info("Log to Rabbitmq",'There is a new predicted motion comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
+        console.log(msg)
+        publisher.publishMessage(msg, 'new_predicted_motion_arrival');
     }
     else{
-
         logger.error("Log to Rabbitmq","just saved object type doesn't match any value [sensor],[mic],[location]")
     }
 
