@@ -238,7 +238,7 @@ AV.Cloud.beforeSave("Log", function(request, response){
         request.object.set("source", source)
     }
 
-    if (pre_type == "accSensor" && compressed == "gzip" ){
+    if ( (pre_type == "accSensor" || "magneticSensor")  && compressed == "gzip" ){
 
         var pre_value = request.object.get("value")
         var compressed_base64_string = pre_value.events
