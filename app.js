@@ -105,7 +105,7 @@ app.get('/events/installations/:installation_id/', function(req, res) {
                 var body = JSON.parse(body_string);
                 if(err != null ||  (response.statusCode != 200 && response.statusCode !=201) || body.code == 1 ){
                     if(_.has(body,"message")){
-                        res.status(500).send({"code":1,"error":body.message})
+                        res.status(200).send({"code":1,"error":body.message})
                     }else {
                         console.log("this is not the leancloud error");
                         res.status(500).send({"code":1,"error":err})
