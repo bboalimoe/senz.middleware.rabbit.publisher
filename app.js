@@ -45,7 +45,7 @@ app.get('/context/installations/:installation_id/', function(req, res) {
             if(err != null ||  (response.statusCode != 200 && response.statusCode !=201) || body.code == 1 ){
                     if(_.has(body,"message")){
                         console.log("Leancloud code error")
-                        res.status(500).send({"code":1,"error":body.message})
+                        res.status(200).send({"code":1,"error":body.message})
                     }else {
                         console.log("Request lib error");
                         res.status(500).send({"code":1,"error":err})
