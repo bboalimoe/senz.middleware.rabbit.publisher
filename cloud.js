@@ -271,6 +271,7 @@ AV.Cloud.beforeSave("Log", function(request, response){
 });
 
 
+
 AV.Cloud.afterSave('Log', function(request) {
 
 
@@ -337,6 +338,91 @@ AV.Cloud.afterSave('Log', function(request) {
     }
     else if(type === "sensor"){
 
+        logger.info("Log to Rabbitmq",'There is a new ios motion sensors data comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
+        console.log(msg)
+        publisher.publishMessage(msg, 'new_ios_motion_arrival');
+    }
+    else{
+        logger.error("Log to Rabbitmq","just saved object type doesn't match any value [sensor],[mic],[location]")
+    }
+
+});
+
+
+
+
+
+AV.Cloud.afterUpdate('Log', function(request) {
+
+
+    var type = request.object.get("type");
+    logger.debug("Log to Rabbitmq", type);
+    if(type === "accSensor"){
+
+        logger.info("Log to Rabbitmq",'There is a new motion comming.');
+        msg = {
+            'objectId': request.object.id,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new motion object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_motion_arrival');
+
+    }
+    else if(type === "mic"){
+        logger.info("Log to Rabbitmq",'There is a new sound comming.');
+        msg = {
+            'objectId': request.object.id,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new sound object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_sound_arrival');
+    }
+    else if(type === "location"){
+
+        logger.info("Log to Rabbitmq",'There is a new location comming.');
+        msg = {
+            'objectId': request.object.id,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_location_arrival');
+    }
+    else if(type === "calendar"){
+
+        logger.info("Log to Rabbitmq",'There is a new calendar comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_calendar_arrival');
+    }else if(type === "application"){
+
+        logger.info("Log to Rabbitmq",'There is a new applist comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_applist_arrival');
+    }else if(type === "predictedMotion"){
+
+        logger.info("Log to Rabbitmq",'There is a new predicted motion comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
+        console.log(msg)
+        publisher.publishMessage(msg, 'new_predicted_motion_arrival');
+    }
+    else if(type === "sensor"){
+        console.log("fuck update sensor object");
         logger.info("Log to Rabbitmq",'There is a new ios motion sensors data comming.');
         msg = {
             'object': request.object,
