@@ -333,7 +333,7 @@ AV.Cloud.afterSave('Log', function(request) {
             'timestamp': Date.now()
         };
         logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
-        console.log(msg)
+        //console.log(msg)
         publisher.publishMessage(msg, 'new_predicted_motion_arrival');
     }
     else if(type === "sensor"){
@@ -344,7 +344,7 @@ AV.Cloud.afterSave('Log', function(request) {
             'timestamp': Date.now()
         };
         logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
-        console.log(msg)
+        //console.log(msg)
         publisher.publishMessage(msg, 'new_ios_motion_arrival');
     }
     else{
@@ -418,7 +418,7 @@ AV.Cloud.afterUpdate('Log', function(request) {
             'timestamp': Date.now()
         };
         logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
-        console.log(msg)
+        //console.log(msg)
         publisher.publishMessage(msg, 'new_predicted_motion_arrival');
     }
     else if(type === "sensor"){
@@ -429,7 +429,7 @@ AV.Cloud.afterUpdate('Log', function(request) {
             'timestamp': Date.now()
         };
         logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
-        console.log(msg)
+        //console.log(msg)
         publisher.publishMessage(msg, 'new_ios_motion_arrival');
     }
     else{
