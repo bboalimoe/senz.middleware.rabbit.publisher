@@ -230,6 +230,7 @@ AV.Cloud.beforeSave("Log", function(request, response){
 
     if( pre_type == "location" && pre_source == "internal"){
         c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude)
+        console.log("fuck")
         source = "baidu offline converter"
         location = pre_location
         location.latitude = c_location.lat
@@ -238,8 +239,10 @@ AV.Cloud.beforeSave("Log", function(request, response){
         request.object.set("source", source)
     }
 
-    if ( (pre_type == "accSensor" || "magneticSensor" || "sensor")  && compressed == "gzip" || "gzipped" ){
+    if ( (pre_type == "accSensor" || pre_type ==  "magneticSensor" || pre_type == "sensor")  && (compressed == "gzip" || compressed == "gzipped") ){
 
+        //console.log(pre_type)
+        //console.log(compressed)
         var pre_value = request.object.get("value")
         var compressed_base64_string = pre_value.events
         var buffer = new Buffer(compressed_base64_string,"base64");
@@ -248,7 +251,7 @@ AV.Cloud.beforeSave("Log", function(request, response){
                 //console.log(JSON.stringify(buffer.toString()))
                 pre_value.events = JSON.parse(buffer.toString())
                 request.object.set("compressed","ungzipped")
-                console.log(pre_value)
+                //console.log(pre_value)
                 request.object.set("value", pre_value)
 
                 response.success();
