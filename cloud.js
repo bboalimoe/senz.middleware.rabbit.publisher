@@ -231,7 +231,7 @@ AV.Cloud.beforeSave("Log", function(request, response){
     if( pre_type == "location" && pre_source == "internal"){
         c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude)
         console.log("fuck")
-        source = "baidu offline converter"
+        source = "baidu offline converter WGS to baidu"
         location = pre_location
         location.latitude = c_location.lat
         location.longitude = c_location.lng
