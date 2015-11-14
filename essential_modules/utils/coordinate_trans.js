@@ -58,7 +58,7 @@ transformFromWGSToGCJ = function( wgLoc)
     dLat = transformLat(wgLoc.lng - 105.0, wgLoc.lat - 35.0);
     dLon = transformLon(wgLoc.lng - 105.0, wgLoc.lat - 35.0);
     radLat = wgLoc.lat / 180.0 * pi;
-    magic = Math.sin(radLat);
+    var magic = Math.sin(radLat);
     magic = 1 - ee * magic * magic;
     sqrtMagic = Math.sqrt(magic);
     dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * pi);
@@ -129,17 +129,24 @@ bd_decrypt = function( bdLoc)
 }
 
 //
-test_pre = LocationMake(116.303064, 39.9746293)
-//console.log(test_pre)
-//test_suf1 = bd_encrypt(transformFromWGSToGCJ(test_pre))
-test_suf2 = bd_encrypt(test_pre)
-//console.log(test_suf2)
+//test_pre = LocationMake(116.303064, 39.9746293)
+////console.log(test_pre)
+////test_suf1 = bd_encrypt(transformFromWGSToGCJ(test_pre))
+//test_suf2 = bd_encrypt(test_pre)
+////console.log(test_suf2)
 //
 //116.30953451054
 //39.980757752447
 
 exports.toBaiduCoordinate = function(lng, lat){
 
-    return bd_encrypt(LocationMake(lng, lat))
+    return bd_encrypt(transformFromWGSToGCJ(LocationMake(lng, lat)))
 };
 
+var test_standard_to_baidu = function(lng, lat){
+
+    return bd_encrypt(transformFromWGSToGCJ(LocationMake(lng, lat)))
+};
+
+
+console.log(test_standard_to_baidu(116.29650493,39.97297579))  //如果这个坐标是火星，转百度，output  { lng: 116.30293895647829, lat: 39.97920639188935 }

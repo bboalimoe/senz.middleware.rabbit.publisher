@@ -9,7 +9,19 @@ var logger = new log("Entrance module");
 var APP_ID = process.env.LC_APP_ID;
 var APP_KEY = process.env.LC_APP_KEY;
 var MASTER_KEY = process.env.LC_APP_MASTER_KEY;
+var memwatch = require("memwatch-next");
 
+memwatch.on("leak", function(info){
+    console.log("mem leaks !!")
+    console.log(info)
+    console.log("mem leaks info end")
+})
+
+memwatch.on("stats", function(stats){
+    console.log("mem heap usage !!")
+    console.log(stats)
+    console.log("mem heap usage info end")
+})
 
 AV.initialize(APP_ID, APP_KEY, MASTER_KEY);
 

@@ -2,14 +2,14 @@
 
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
-
+.idea/workspace.xml
 *.iml
 ## Directory-based project format:
 .idea/
 .idea/*
-.idea
-# if you remove the above rule, at least ignore the following:
 
+# if you remove the above rule, at least ignore the following:
+node_modules/memwatch-next
 # User-specific stuff:
 # .idea/workspace.xml
 # .idea/tasks.xml
@@ -32,5 +32,4 @@
 ## File-based project format:
 *.ipr
 *.iws
-.avoscloud/
 .avoscloud/

@@ -15,6 +15,20 @@
 //
 //console.log(sum)
 
+
+a =  {
+    pois:"原始的位置信息和poi信息，相当于备份用",
+    synced:"同步数据raw log里的数据用",
+    userRawdataId: "该条UserLocation数据对应的raw log里的数据的objectId",
+    isTrainingSample: "旧算法采用的标志该数据是否为训练数据",
+    pois:"原始的位置信息和poi信息，相当于备份用",
+    synced:" 同步数据raw log里的数据用",
+    userRawdataId:"该条UserLocation数据对应的raw log里的数据的objectId",
+    isTrainingSample:"旧算法采用的标志该数据是否为训练数据"
+}
+
+console.log(a)
+
 //
 //function isEven(num){
 //    if(num === 0 ){

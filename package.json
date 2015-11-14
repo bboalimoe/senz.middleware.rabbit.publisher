@@ -14,7 +14,7 @@
         "ejs": "2.3.1",
         "express": "4.12.3",
         "leanengine": "^0.1.0",
-
+        "memwatch-next":"",
         "wascally"     : "latest",
         "memory-cache" : "",
         "tracer" : "",
