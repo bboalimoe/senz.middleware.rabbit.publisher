@@ -150,3 +150,49 @@ var test_standard_to_baidu = function(lng, lat){
 
 
 console.log(test_standard_to_baidu(116.29650493,39.97297579))  //如果这个坐标是火星，转百度，output  { lng: 116.30293895647829, lat: 39.97920639188935 }
+
+//Distanc calculation by baidu
+
+
+function fD(a, b, c) {
+    for (; a > c;)
+        a -= c - b;
+    for (; a < b;)
+        a += c - b;
+    return a;
+};
+function jD(a, b, c) {
+    b != null && (a = Math.max(a, b));
+    c != null && (a = Math.min(a, c));
+    return a;
+};
+function yk(a) {
+    return Math.PI * a / 180
+};
+function Ce(a, b, c, d) {
+    var dO = 6370996.81;
+    return dO * Math.acos(Math.sin(c) * Math.sin(d) + Math.cos(c) * Math.cos(d) * Math.cos(b - a));
+};
+function getDistance(a, b) {
+    if (!a || !b)
+        return 0;
+    a.lng = fD(a.lng, -180, 180);
+    a.lat = jD(a.lat, -74, 74);
+    b.lng = fD(b.lng, -180, 180);
+    b.lat = jD(b.lat, -74, 74);
+    return Ce(yk(a.lng), yk(b.lng), yk(a.lat), yk(b.lat));
+};
+//console.log("fuck")
+//116.439643,39.9263871
+console.log(getDistance({lng : 116.309101, lat: 39.9805045},{lng : 116.3092094,lat :39.9803396}));
+//console.log("fuck hi")
+exports.isCoordinateInChaos = function(geo1){
+
+    geo2 = {lng:116.309101,lat: 39.9805045 }
+
+    if (getDistance(geo1,geo2) > 600){
+        return true
+    }else{
+        return false
+    }
+}
