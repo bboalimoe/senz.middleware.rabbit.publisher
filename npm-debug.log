@@ -1,9 +1,5 @@
 0 info it worked if it ends with ok
-1 verbose cli [ '/usr/local/bin/node',
-1 verbose cli   '/usr/local/bin/npm',
-1 verbose cli   'start',
-1 verbose cli   '-P',
-1 verbose cli   '3006' ]
+1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'start' ]
 2 info using npm@2.14.7
 3 info using node@v4.2.1
 4 verbose run-script [ 'prestart', 'start', 'poststart' ]
@@ -11,7 +7,7 @@
 6 info start senz-middlewares@0.0.1
 7 verbose unsafe-perm in lifecycle true
 8 info senz-middlewares@0.0.1 Failed to exec start script
-9 verbose stack Error: senz-middlewares@0.0.1 start: `node server.js "3006"`
+9 verbose stack Error: senz-middlewares@0.0.1 start: `node server.js`
 9 verbose stack Exit status 1
 9 verbose stack     at EventEmitter.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/lifecycle.js:214:16)
 9 verbose stack     at emitTwo (events.js:87:13)
@@ -24,17 +20,17 @@
 10 verbose pkgid senz-middlewares@0.0.1
 11 verbose cwd /Users/zhanghengyang/WebstormProjects/senz.middleware.log.rabbitmq
 12 error Darwin 15.0.0
-13 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "start" "-P" "3006"
+13 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "start"
 14 error node v4.2.1
 15 error npm  v2.14.7
 16 error code ELIFECYCLE
-17 error senz-middlewares@0.0.1 start: `node server.js "3006"`
+17 error senz-middlewares@0.0.1 start: `node server.js`
 17 error Exit status 1
-18 error Failed at the senz-middlewares@0.0.1 start script 'node server.js "3006"'.
+18 error Failed at the senz-middlewares@0.0.1 start script 'node server.js'.
 18 error This is most likely a problem with the senz-middlewares package,
 18 error not with npm itself.
 18 error Tell the author that this fails on your system:
-18 error     node server.js "3006"
+18 error     node server.js
 18 error You can get their info via:
 18 error     npm owner ls senz-middlewares
 18 error There is likely additional logging output above.

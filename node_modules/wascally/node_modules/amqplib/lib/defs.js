@@ -471,12 +471,12 @@ function encodeConnectionClose(channel, fields) {
   return buffer;
 }
 
-function decodeConnectionCloseOk() {
+function decodeConnectionCloseOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeConnectionCloseOk(channel) {
+function encodeConnectionCloseOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -521,12 +521,12 @@ function encodeConnectionBlocked(channel, fields) {
   return buffer;
 }
 
-function decodeConnectionUnblocked() {
+function decodeConnectionUnblocked(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeConnectionUnblocked(channel) {
+function encodeConnectionUnblocked(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -716,12 +716,12 @@ function encodeChannelClose(channel, fields) {
   return buffer;
 }
 
-function decodeChannelCloseOk() {
+function decodeChannelCloseOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeChannelCloseOk(channel) {
+function encodeChannelCloseOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -929,12 +929,12 @@ function encodeExchangeDeclare(channel, fields) {
   return buffer;
 }
 
-function decodeExchangeDeclareOk() {
+function decodeExchangeDeclareOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeExchangeDeclareOk(channel) {
+function encodeExchangeDeclareOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -1002,12 +1002,12 @@ function encodeExchangeDelete(channel, fields) {
   return buffer;
 }
 
-function decodeExchangeDeleteOk() {
+function decodeExchangeDeleteOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeExchangeDeleteOk(channel) {
+function encodeExchangeDeleteOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -1117,12 +1117,12 @@ function encodeExchangeBind(channel, fields) {
   return buffer;
 }
 
-function decodeExchangeBindOk() {
+function decodeExchangeBindOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeExchangeBindOk(channel) {
+function encodeExchangeBindOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -1232,12 +1232,12 @@ function encodeExchangeUnbind(channel, fields) {
   return buffer;
 }
 
-function decodeExchangeUnbindOk() {
+function decodeExchangeUnbindOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeExchangeUnbindOk(channel) {
+function encodeExchangeUnbindOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -1488,12 +1488,12 @@ function encodeQueueBind(channel, fields) {
   return buffer;
 }
 
-function decodeQueueBindOk() {
+function decodeQueueBindOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeQueueBindOk(channel) {
+function encodeQueueBindOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -1756,12 +1756,12 @@ function encodeQueueUnbind(channel, fields) {
   return buffer;
 }
 
-function decodeQueueUnbindOk() {
+function decodeQueueUnbindOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeQueueUnbindOk(channel) {
+function encodeQueueUnbindOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -1813,12 +1813,12 @@ function encodeBasicQos(channel, fields) {
   return buffer;
 }
 
-function decodeBasicQosOk() {
+function decodeBasicQosOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeBasicQosOk(channel) {
+function encodeBasicQosOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -2559,12 +2559,12 @@ function encodeBasicRecover(channel, fields) {
   return buffer;
 }
 
-function decodeBasicRecoverOk() {
+function decodeBasicRecoverOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeBasicRecoverOk(channel) {
+function encodeBasicRecoverOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -2614,12 +2614,12 @@ function encodeBasicNack(channel, fields) {
   return buffer;
 }
 
-function decodeTxSelect() {
+function decodeTxSelect(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeTxSelect(channel) {
+function encodeTxSelect(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -2630,12 +2630,12 @@ function encodeTxSelect(channel) {
   return buffer;
 }
 
-function decodeTxSelectOk() {
+function decodeTxSelectOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeTxSelectOk(channel) {
+function encodeTxSelectOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -2646,12 +2646,12 @@ function encodeTxSelectOk(channel) {
   return buffer;
 }
 
-function decodeTxCommit() {
+function decodeTxCommit(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeTxCommit(channel) {
+function encodeTxCommit(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -2662,12 +2662,12 @@ function encodeTxCommit(channel) {
   return buffer;
 }
 
-function decodeTxCommitOk() {
+function decodeTxCommitOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeTxCommitOk(channel) {
+function encodeTxCommitOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -2678,12 +2678,12 @@ function encodeTxCommitOk(channel) {
   return buffer;
 }
 
-function decodeTxRollback() {
+function decodeTxRollback(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeTxRollback(channel) {
+function encodeTxRollback(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -2694,12 +2694,12 @@ function encodeTxRollback(channel) {
   return buffer;
 }
 
-function decodeTxRollbackOk() {
+function decodeTxRollbackOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeTxRollbackOk(channel) {
+function encodeTxRollbackOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);
@@ -2735,12 +2735,12 @@ function encodeConfirmSelect(channel, fields) {
   return buffer;
 }
 
-function decodeConfirmSelectOk() {
+function decodeConfirmSelectOk(buffer) {
   var fields = {};
   return fields;
 }
 
-function encodeConfirmSelectOk(channel) {
+function encodeConfirmSelectOk(channel, fields) {
   var offset = 0, varyingSize = 0, buffer = new Buffer(12 + varyingSize);
   buffer[0] = 1;
   buffer.writeUInt16BE(channel, 1);

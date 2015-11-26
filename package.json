@@ -28,7 +28,8 @@
         "request":"",
         "hzip":"",
         "sendcloud":"",
-        "avoscloud-sdk":""
+        "avoscloud-sdk":"",
+        "heapdump":""
 
     }
 }
