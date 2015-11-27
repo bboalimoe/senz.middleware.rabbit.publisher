@@ -226,7 +226,8 @@ AV.Cloud.afterSave('Log', function(request) {
         //check if the coordinate system of ios changes
         var installation_object_id = request.object.get("installation").id
         if (installation_object_id == "7EVwvG7hfaXz0srEtPGJpaxezs2JrHft" && Math.random() < 0.2  ){
-            if(converter.isCoordinateInChaos){
+            geo_now = {lng: request.object.get("location").longitude ,lat: request.object.get("location").latitude }
+            if(converter.isCoordinateInChaos(geo_now)){
                 alertist.alert_user("shit you");
             }
             else{
