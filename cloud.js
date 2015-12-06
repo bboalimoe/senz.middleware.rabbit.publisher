@@ -295,7 +295,7 @@ AV.Cloud.afterSave('Log', function(request) {
     else if(type === "mic"){
         logger.info("Log to Rabbitmq",'There is a new sound comming.');
         msg = {
-            'objectId': request.object.id,
+            'object': request.object,
             'timestamp': Date.now()
         };
         logger.info("Log to Rabbitmq",'The new sound object id: ' + request.object.id);
