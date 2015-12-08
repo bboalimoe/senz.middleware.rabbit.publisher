@@ -4,6 +4,6 @@ export dev_LC_APP_MASTER_KEY=87fqgx8m7521szcvbztb1g6w9l7eljrg09zibbnqj7tnvrfu
 export APP_ENV = "test"
 
 
-export LC_APP_PORT=3000
+export LC_APP_PORT=4000
 
 npm start
