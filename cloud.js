@@ -305,7 +305,7 @@ AV.Cloud.afterSave('Log', function(request) {
 
         logger.info("Log to Rabbitmq",'There is a new location comming.');
         msg = {
-            'object': request.object,
+            'objectId': request.object,
             'timestamp': Date.now()
         };
         console.log(msg);
