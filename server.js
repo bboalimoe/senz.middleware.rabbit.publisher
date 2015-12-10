@@ -12,29 +12,29 @@ var MASTER_KEY = process.env.LC_APP_MASTER_KEY;
 var memwatch = require("memwatch-next");
 var request = require("request")
 
-memwatch.on("leak", function(info){
-    console.log("mem leaks !!")
-    console.log("send info to leancloud _File")
-    request.post({
-        url: "http://sdk_interface.avosapps.com/snapshot"
-    },function(err,res,body){
-        if(!err){
-            console.log(JSON.stringify(err))
-            console.log("snapshot file saving in error")
-        }else{
-            console.log("snapshot saving sucessfully");
-        }
-        console.log(info)
-        console.log("mem leaks info end")
-    })
+//memwatch.on("leak", function(info){
+//    console.log("mem leaks !!")
+//    console.log("send info to leancloud _File")
+//    request.post({
+//        url: "http://sdk_interface.avosapps.com/snapshot"
+//    },function(err,res,body){
+//        if(!err){
+//            console.log(JSON.stringify(err))
+//            console.log("snapshot file saving in error")
+//        }else{
+//            console.log("snapshot saving sucessfully");
+//        }
+//        console.log(info)
+//        console.log("mem leaks info end")
+//    })
+//
+//})
 
-})
-
-memwatch.on("stats", function(stats){
-    console.log("mem heap usage !!")
-    console.log(stats)
-    console.log("mem heap usage info end")
-})
+//memwatch.on("stats", function(stats){
+//    console.log("mem heap usage !!")
+//    console.log(stats)
+//    console.log("mem heap usage info end")
+//})
 
 AV.initialize(APP_ID, APP_KEY, MASTER_KEY);
 

@@ -18,6 +18,7 @@ var topology = {
         { name: 'new_applist_arrival_prod', type: 'fanout' },
         { name: 'new_predicted_motion_arrival_prod', type: 'fanout' },
         { name: 'new_ios_motion_arrival_prod', type: 'fanout'},
+        { name: 'new_location_arrival_o_prod', type: 'fanout' }
 
 
 

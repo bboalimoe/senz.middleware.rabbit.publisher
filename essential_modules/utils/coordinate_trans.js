@@ -149,7 +149,7 @@ var test_standard_to_baidu = function(lng, lat){
 };
 
 
-console.log(test_standard_to_baidu(116.29650493,39.97297579))  //如果这个坐标是火星，转百度，output  { lng: 116.30293895647829, lat: 39.97920639188935 }
+//console.log(test_standard_to_baidu(116.29650493,39.97297579))  //如果这个坐标是火星，转百度，output  { lng: 116.30293895647829, lat: 39.97920639188935 }
 
 //Distanc calculation by baidu
 
@@ -184,7 +184,7 @@ function getDistance(a, b) {
 };
 //console.log("fuck")
 //116.439643,39.9263871
-console.log(getDistance({lng : 116.309101, lat: 39.9805045},{lng : 116.3092094,lat :39.9803396}));
+//console.log(getDistance({lng : 116.309101, lat: 39.9805045},{lng : 116.3092094,lat :39.9803396}));
 //console.log("fuck hi")
 exports.isCoordinateInChaos = function(geo1){
 
