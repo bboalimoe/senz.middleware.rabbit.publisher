@@ -9,6 +9,7 @@ var logger = new log("Entrance module");
 var APP_ID = process.env.LC_APP_ID;
 var APP_KEY = process.env.LC_APP_KEY;
 var MASTER_KEY = process.env.LC_APP_MASTER_KEY;
+<<<<<<< HEAD
 var memwatch = require("memwatch-next");
 var request = require("request")
 
@@ -30,6 +31,16 @@ var request = require("request")
 //
 //})
 
+=======
+//var memwatch = require("memwatch-next");
+
+//memwatch.on("leak", function(info){
+//    console.log("mem leaks !!")
+//    console.log(info)
+//    console.log("mem leaks info end")
+//})
+//
+>>>>>>> 4763624898d7e91d6735343c82cae3a170a8733d
 //memwatch.on("stats", function(stats){
 //    console.log("mem heap usage !!")
 //    console.log(stats)

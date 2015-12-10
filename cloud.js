@@ -174,8 +174,53 @@ AV.Cloud.beforeSave("Log", function(request, response){
 
 AV.Cloud.afterSave('Log', function(request) {
     var type = request.object.get("type");
+<<<<<<< HEAD
     console.log('afterSave', type);
     var msg = {};
+=======
+    logger.debug("Log to Rabbitmq", type);
+    if(type === "accSensor"){
+
+        logger.info("Log to Rabbitmq",'There is a new motion comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new motion object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_motion_arrival');
+
+    }
+    else if(type === "mic"){
+        logger.info("Log to Rabbitmq",'There is a new sound comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new sound object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_sound_arrival');
+    }
+    else if(type === "location"){
+
+        logger.info("Log to Rabbitmq",'There is a new location comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        console.log(msg);
+        logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_location_arrival');
+    }
+    else if(type === "calendar"){
+
+        logger.info("Log to Rabbitmq",'There is a new calendar comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_calendar_arrival');
+    }else if(type === "application"){
+>>>>>>> 4763624898d7e91d6735343c82cae3a170a8733d
 
     //logger.debug("Log to Rabbitmq", type);
     if(type === "accSensor"){

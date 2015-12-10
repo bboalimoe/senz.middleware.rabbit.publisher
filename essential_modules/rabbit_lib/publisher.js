@@ -16,9 +16,15 @@ if(process.env.APP_ENV === "prod"){
 publishMsg = function(msg, event) {
     logger.info("",'------ Sending ------');
     logger.info("",'* The chosen event is ' + event + '\n* The content of Msg is ' + msg + '\n* Sending Msg...\n');
+<<<<<<< HEAD
     console.log("",'* The chosen event is ' + event + '\n* The content of Msg is ' + msg + '\n* Sending Msg...\n');
     var routing_key = null;
     if(event == "new_motion_arrival"){routing_key = "motion";}
+=======
+    var routing_key = null;
+    if(event == "new_motion_arrival"){routing_key = "motion";}
+    if(event == "new_motion_arrival_o"){routing_key = "motion_o";}
+>>>>>>> 4763624898d7e91d6735343c82cae3a170a8733d
     if(event == "new_sound_arrival"){routing_key = "sound";}
     if(event == "new_location_arrival"){routing_key = "location";}
     if(event == "new_location_arrival_o"){routing_key = "location_o";}
@@ -28,7 +34,11 @@ publishMsg = function(msg, event) {
     if(event == "new_ios_motion_arrival")  {routing_key = "ios_motion"}
     //not right
     var type = "senz.message." + routing_key + env;
+<<<<<<< HEAD
     console.log("","event is " + type);
+=======
+    console.log("event is " + type);
+>>>>>>> 4763624898d7e91d6735343c82cae3a170a8733d
     rabbit.publish(event + env, {
         type: type,
         body: msg
