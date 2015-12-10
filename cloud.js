@@ -289,7 +289,7 @@ AV.Cloud.afterSave('Log', function(request) {
             'timestamp': Date.now()
         };
         logger.info("Log to Rabbitmq",'The new motion object id: ' + request.object.id);
-        publisher.publishMessage(msg, 'new_motion_arrival_o');
+        publisher.publishMessage(msg, 'new_motion_arrival');
 
     }
     else if(type === "mic"){
@@ -305,12 +305,12 @@ AV.Cloud.afterSave('Log', function(request) {
 
         logger.info("Log to Rabbitmq",'There is a new location comming.');
         msg = {
-            'objectId': request.object,
+            'object': request.object,
             'timestamp': Date.now()
         };
         console.log(msg);
         logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
-        publisher.publishMessage(msg, 'new_location_arrival_o');
+        publisher.publishMessage(msg, 'new_location_arrival');
     }
     else if(type === "calendar"){
 
