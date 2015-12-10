@@ -175,6 +175,7 @@ AV.Cloud.beforeSave("Log", function(request, response){
 AV.Cloud.afterSave('Log', function(request) {
     var type = request.object.get("type");
     console.log('afterSave', type);
+    var msg = {};
 
     //logger.debug("Log to Rabbitmq", type);
     if(type === "accSensor"){
@@ -259,11 +260,8 @@ AV.Cloud.afterSave('Log', function(request) {
         publisher.publishMessage(msg, 'new_ios_motion_arrival');
     }
     else{
-        //logger.error("Log to Rabbitmq","just saved object type doesn't match any value [sensor],[mic],[location]")
+        logger.error("Log to Rabbitmq","just saved object type doesn't match any value [sensor],[mic],[location]")
     }
-
-
-
 });
 
 

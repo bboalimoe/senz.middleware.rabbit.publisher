@@ -23,7 +23,6 @@
         "underscore":"",
         "nonce":"",
         "uuid":"",
-        "zlib":"",
         "bugsnag":"",
         "request":"",
         "hzip":"",
