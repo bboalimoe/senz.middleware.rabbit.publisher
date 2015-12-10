@@ -13,19 +13,6 @@ var alertist = require("./essential_modules/utils/send_notify.js");
 var zlib = require("zlib");
 
 
-
-
-//var installation_params = {
-//    "androidID":"123",
-//    "deviceID":"234",
-//    "_Installation":"14ljalsdjgaouojlajdfl",
-//    "macAddress":"d8:e5:6d:a1:de:a2",
-//    "simSerialNumber":"12ljljljl"
-//
-//
-//};
-
-//
 var Installation = AV.Object.extend("_Installation");
 var application = AV.Object.extend("Application");
 
@@ -132,49 +119,48 @@ AV.Cloud.define("createInstallation", function(request, response) {
 
 AV.Cloud.beforeSave("Log", function(request, response){
 
-    var pre_type = request.object.get("type")
-    var pre_source = request.object.get("source")
-    var pre_location = request.object.get("location")
-    var compressed = request.object.get("compressed")
+    var pre_type = request.object.get("type");
+    var pre_source = request.object.get("source");
+    var pre_location = request.object.get("location");
+    var compressed = request.object.get("compressed");
 
     if( pre_type == "location" && pre_source == "internal"){
-        backup_location = {"lat":pre_location.latitude, "lng":pre_location.longitude}
-        c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude)
-        console.log("fuck")
-        source = "baidu offline converter WGS to baidu"
-        location = pre_location
-        location.latitude = c_location.lat
-        location.longitude = c_location.lng
-        request.object.set("pre_location",backup_location)
-        request.object.set("location", location)
-        request.object.set("source", source)
+        var backup_location = {"lat":pre_location.latitude, "lng":pre_location.longitude};
+        var c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude);
+        console.log("fuck");
+        source = "baidu offline converter WGS to baidu";
+        var location = pre_location;
+        location.latitude = c_location.lat;
+        location.longitude = c_location.lng;
+        request.object.set("pre_location",backup_location);
+        request.object.set("location", location);
+        request.object.set("source", source);
         //request.object.set("pre_location",pre_location)
     }
 
-    if ( (pre_type == "accSensor" || pre_type ==  "magneticSensor" || pre_type == "sensor" || pre_type == "motionLog")  && (compressed == "gzip" || compressed == "gzipped") ){
+    if ( (pre_type == "accSensor" || pre_type ==  "magneticSensor" || pre_type == "sensor" || pre_type == "motionLog")
+        && (compressed == "gzip" || compressed == "gzipped") ){
 
         //console.log(pre_type)
         //console.log(compressed)
-        var pre_value = request.object.get("value")
-        var compressed_base64_string = pre_value.events
+        var pre_value = request.object.get("value");
+        var compressed_base64_string = pre_value.events;
         var buffer = new Buffer(compressed_base64_string,"base64");
         zlib.unzip(buffer,function(err, buffer){
             if(!err) {
                 //console.log(JSON.stringify(buffer.toString()))
-                pre_value.events = JSON.parse(buffer.toString())
-                request.object.set("compressed","ungzipped")
+                pre_value.events = JSON.parse(buffer.toString());
+                request.object.set("compressed","ungzipped");
                 //console.log(pre_value)
-                request.object.set("value", pre_value)
+                request.object.set("value", pre_value);
 
                 response.success();
             }
             else{
-                console.log(JSON.stringify(err))
+                console.log(JSON.stringify(err));
                 response.error(err)
             }
         })
-
-
     }
     else{
         response.success();
@@ -231,7 +217,7 @@ AV.Cloud.afterSave('Log', function(request) {
             'timestamp': Date.now()
         };
         //logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
-        publisher.publishMessage(msg, 'new_location_arrival_o');
+        publisher.publishMessage(msg, 'new_location_arrival');
     }
     else if(type === "calendar"){
 
