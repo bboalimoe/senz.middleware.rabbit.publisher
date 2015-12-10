@@ -174,10 +174,8 @@ AV.Cloud.beforeSave("Log", function(request, response){
 
 AV.Cloud.afterSave('Log', function(request) {
     var type = request.object.get("type");
-<<<<<<< HEAD
     console.log('afterSave', type);
     var msg = {};
-=======
     logger.debug("Log to Rabbitmq", type);
     if(type === "accSensor"){
 
@@ -219,12 +217,17 @@ AV.Cloud.afterSave('Log', function(request) {
         };
         logger.info("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_calendar_arrival');
-    }else if(type === "application"){
->>>>>>> 4763624898d7e91d6735343c82cae3a170a8733d
-
-    //logger.debug("Log to Rabbitmq", type);
-    if(type === "accSensor"){
-
+    }
+    else if(type === "application"){
+        logger.info("Log to Rabbitmq",'There is a new applist comming.');
+        msg = {
+            'object': request.object,
+            'timestamp': Date.now()
+        };
+        logger.info("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
+        publisher.publishMessage(msg, 'new_applist_arrival');
+    }
+    else if(type === "accSensor"){
         //logger.info("Log to Rabbitmq",'There is a new motion comming.');
         msg = {
             'object': request.object,
@@ -232,7 +235,6 @@ AV.Cloud.afterSave('Log', function(request) {
         };
         //logger.info("Log to Rabbitmq",'The new motion object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_motion_arrival');
-
     }
     else if(type === "mic"){
         //logger.info("Log to Rabbitmq",'There is a new sound comming.');
@@ -274,7 +276,8 @@ AV.Cloud.afterSave('Log', function(request) {
         };
         //logger.info("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_calendar_arrival');
-    }else if(type === "application"){
+    }
+    else if(type === "application"){
         //logger.info("Log to Rabbitmq",'There is a new applist comming.');
         msg = {
             'object': request.object,
@@ -282,7 +285,8 @@ AV.Cloud.afterSave('Log', function(request) {
         };
         //logger.info("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_applist_arrival');
-    }else if(type === "predictedMotion"){
+    }
+    else if(type === "predictedMotion"){
 
         //logger.info("Log to Rabbitmq",'There is a new predicted motion comming.');
         msg = {

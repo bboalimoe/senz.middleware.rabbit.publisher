@@ -12,17 +12,13 @@ var app = express();
 app.use(cloud);
 
 
-<<<<<<< HEAD
 // 加载云代码方法
-=======
 //// 加载云代码方法
->>>>>>> 4763624898d7e91d6735343c82cae3a170a8733d
 //
 //logger.info("App Module","Initializing The System");
 //app.use(bodyParser.json());
 //app.use(bodyParser.urlencoded({ extended: false }));
 //app.use(cookieParser());
-<<<<<<< HEAD
 
 
 //
@@ -75,7 +71,6 @@ app.use(cloud);
 //        error: {}
 //    });
 //});
-=======
 //
 //var _Installation = AV.Object.extend("_Installation");
 //
@@ -187,8 +182,5 @@ app.use(cloud);
 //
 //});
 
-
-
->>>>>>> 4763624898d7e91d6735343c82cae3a170a8733d
 
 module.exports = app;
