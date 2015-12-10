@@ -6,9 +6,8 @@
 *.iml
 ## Directory-based project format:
 .idea/
-.idea/*
+node_modules/
 # if you remove the above rule, at least ignore the following:
-node_modules/memwatch-next
 # User-specific stuff:
 # .idea/workspace.xml
 # .idea/tasks.xml
