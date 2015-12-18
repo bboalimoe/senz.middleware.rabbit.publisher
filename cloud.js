@@ -10,11 +10,136 @@ var createUser = require("./essential_modules/utils/lean_utils.js").createUser;
 //var bugsnag = require("bugsnag");
 var converter = require("./essential_modules/utils/coordinate_trans.js");
 var alertist = require("./essential_modules/utils/send_notify.js");
-var zlib = require("zlib");
-
-
+var apn = require("apn");
 var Installation = AV.Object.extend("_Installation");
 var application = AV.Object.extend("Application");
+
+var ios_log_flag = {};
+
+
+var createConnection = function(installationId){
+    if(!ios_log_flag[installationId].apnConnection || !ios_log_flag[installationId].device){
+        var installation_query = new AV.Query(Installation);
+        installation_query.equalTo("objectId", installationId);
+        return installation_query.find()
+            .then(
+                function(installation_array){
+                    var installation = installation_array[0];
+                    var token = installation.get('token');
+                    ios_log_flag[installationId].device = new apn.Device(token);
+
+                    var appId = installation.get('application').id;
+
+                    var app_query = new AV.Query(application);
+                    app_query.equalTo("objectId", appId);
+                    return app_query.find();
+                },
+                function(e){
+                    return AV.Promise.error(e);
+                })
+            .then(
+                function(app_array){
+                    var app = app_array[0];
+                    var cert_url = app.get('cert_url');
+                    var key_url = app.get('key_url');
+                    return AV.Promise.all([
+                        AV.Cloud.httpRequest({ url: cert_url }),
+                        AV.Cloud.httpRequest({ url: key_url }),
+                        app.get('passphrase')
+                    ]);
+                },
+                function(e){
+                    return AV.Promise.error(e);
+                })
+            .then(
+                function(response) {
+                    var cert = response[0].buffer;
+                    var key = response[1].buffer;
+                    var passpharse = response[2];
+                    ios_log_flag[installationId].apnConnection =
+                        new apn.Connection({
+                            cert: cert,
+                            key: key,
+                            passphrase: passpharse
+                        });
+                    return AV.Promise.as(ios_log_flag[installationId]);
+                },
+                function(e){
+                    return AV.Promise.error(e);
+                });
+    }else{
+        return AV.Promise.as(ios_log_flag[installationId]);
+    }
+};
+
+var flagReset = function(installationId){
+    if(!ios_log_flag[installationId]){
+        ios_log_flag[installationId] = {
+            expire: 10*60
+        }
+    }
+    createConnection(installationId).then(
+        function(d){
+            console.log(d);
+        });
+};
+
+var flagInc = function(installationId){
+    ios_log_flag[installationId].expire -= 1;
+};
+
+var pushMessage = function(installationId){
+    var apnConnection = ios_log_flag[installationId].apnConnection;
+    var device = ios_log_flag[installationId].device;
+
+    var note = new apn.Notification();
+    apnConnection.pushNotification(note, device);
+};
+
+AV.Cloud.define("pushToken", function(req, rep){
+    var token = req.params.token;
+    var installationId = req.params.installationId;
+
+    var installation_query = new AV.Query(Installation);
+    installation_query.equalTo('objectId', installationId);
+    installation_query.find()
+        .then(
+            function(results){
+                var installation = results[0];
+                installation.set('token', token);
+                return installation.save();
+            },
+            function(e){
+                return AV.Promise.error(e);
+            })
+        .then(
+            function(d){
+                rep.success("success");
+                return AV.Promise.as(d);
+            },
+            function(e){
+                rep.error(e);
+                return AV.Promise.error(e);
+            })
+});
+
+AV.Cloud.define("maintainFlag", function(req, rep){
+    Object.keys(ios_log_flag).forEach(function(installationId){
+        flagInc(installationId);
+
+        if(ios_log_flag[installationId].expire <= 0){
+            pushMessage(installationId);
+            flagReset(installationId);
+        }
+    });
+    rep.success("OK");
+});
+
+//AV.Cloud.define("test", function(req, rep){
+//    var installationId = req.params.installationId;
+//    pushMessage(installationId);
+//    rep.success("end");
+//});
 
 AV.Cloud.define("createInstallation", function(request, response) {
 
@@ -173,6 +298,9 @@ AV.Cloud.beforeSave("Log", function(request, response){
 });
 
 AV.Cloud.afterSave('Log', function(request) {
+    //var installationId = request.object.get('installation').id;
+    //flagReset(installationId);
+
     var type = request.object.get("type");
     console.log('afterSave', type);
     var msg = {};
