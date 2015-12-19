@@ -11,6 +11,7 @@ var createUser = require("./essential_modules/utils/lean_utils.js").createUser;
 var converter = require("./essential_modules/utils/coordinate_trans.js");
 var alertist = require("./essential_modules/utils/send_notify.js");
 var apn = require("apn");
+var zlib = require("zlib");
 var Installation = AV.Object.extend("_Installation");
 var application = AV.Object.extend("Application");
 
@@ -26,7 +27,12 @@ var createConnection = function(installationId){
                 function(installation_array){
                     var installation = installation_array[0];
                     var token = installation.get('token');
-                    ios_log_flag[installationId].device = new apn.Device(token);
+                    if(token){
+                        var device = new apn.Device(token);
+                    }else{
+                        device = null;
+                    }
+                    ios_log_flag[installationId].device = device;
 
                     var appId = installation.get('application').id;
 
@@ -40,8 +46,8 @@ var createConnection = function(installationId){
             .then(
                 function(app_array){
                     var app = app_array[0];
-                    var cert_url = app.get('cert_url');
-                    var key_url = app.get('key_url');
+                    var cert_url = app.get('cert_url') || "";
+                    var key_url = app.get('key_url') || "";
                     return AV.Promise.all([
                         AV.Cloud.httpRequest({ url: cert_url }),
                         AV.Cloud.httpRequest({ url: key_url }),
@@ -56,12 +62,17 @@ var createConnection = function(installationId){
                     var cert = response[0].buffer;
                     var key = response[1].buffer;
                     var passpharse = response[2];
-                    ios_log_flag[installationId].apnConnection =
-                        new apn.Connection({
-                            cert: cert,
-                            key: key,
-                            passphrase: passpharse
-                        });
+                    if(cert && key){
+                        ios_log_flag[installationId].apnConnection =
+                            new apn.Connection({
+                                cert: cert,
+                                key: key,
+                                passphrase: passpharse
+                            });
+                    }else{
+                        ios_log_flag[installationId].apnConnection = null;
+                    }
+
                     return AV.Promise.as(ios_log_flag[installationId]);
                 },
                 function(e){
@@ -74,14 +85,10 @@ var createConnection = function(installationId){
 
 var flagReset = function(installationId){
     if(!ios_log_flag[installationId]){
-        ios_log_flag[installationId] = {
-            expire: 10*60
-        }
+        ios_log_flag[installationId] = {};
     }
-    createConnection(installationId).then(
-        function(d){
-            console.log(d);
-        });
+
+    ios_log_flag[installationId].expire = 10*60;
 };
 
 var flagInc = function(installationId){
@@ -93,8 +100,23 @@ var pushMessage = function(installationId){
     var device = ios_log_flag[installationId].device;
 
     var note = new apn.Notification();
+    note.expiry = Math.floor(Date.now() / 1000) + 3600;
+    note.contentAvailable = 1;
+    note.payload = {'senz-sdk-notify': {
+        "type": "collect-data",
+        "value": "mageia_test"
+    }};
+
+    console.log(ios_log_flag[installationId]);
+
     apnConnection.pushNotification(note, device);
 };
+
+AV.Cloud.define('test', function(req, rep){
+    var installationId = req.params.installationId;
+    pushMessage(installationId);
+    rep.success("end");
+});
 
 AV.Cloud.define("pushToken", function(req, rep){
     var token = req.params.token;
@@ -114,6 +136,9 @@ AV.Cloud.define("pushToken", function(req, rep){
             })
         .then(
             function(d){
+                ios_log_flag[installationId] = {
+                    expire: 10*60
+                };
                 rep.success("success");
                 return AV.Promise.as(d);
             },
@@ -132,6 +157,8 @@ AV.Cloud.define("maintainFlag", function(req, rep){
             flagReset(installationId);
         }
     });
+    console.log("Timer:  ");
+    console.log(ios_log_flag);
     rep.success("OK");
 });
 
@@ -298,8 +325,9 @@ AV.Cloud.beforeSave("Log", function(request, response){
 });
 
 AV.Cloud.afterSave('Log', function(request) {
-    //var installationId = request.object.get('installation').id;
-    //flagReset(installationId);
+    var installationId = request.object.get('installation').id;
+    flagReset(installationId);
+    createConnection(installationId);
 
     var type = request.object.get("type");
     console.log('afterSave', type);
