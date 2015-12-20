@@ -33,6 +33,7 @@ var createConnection = function(installationId){
                         device = null;
                     }
                     ios_log_flag[installationId].device = device;
+                    ios_log_flag[installationId].has_token = device ? true: false;
 
                     var appId = installation.get('application').id;
 
@@ -63,15 +64,17 @@ var createConnection = function(installationId){
                     var key = response[1].buffer;
                     var passpharse = response[2];
                     if(cert && key){
-                        ios_log_flag[installationId].apnConnection =
+                        var apnConnection =
                             new apn.Connection({
                                 cert: cert,
                                 key: key,
                                 passphrase: passpharse
                             });
                     }else{
-                        ios_log_flag[installationId].apnConnection = null;
+                        apnConnection = null;
                     }
+                    ios_log_flag[installationId].apnConnection = apnConnection;
+                    ios_log_flag[installationId].has_cert = apnConnection ? true : false;
 
                     return AV.Promise.as(ios_log_flag[installationId]);
                 },
@@ -109,7 +112,9 @@ var pushMessage = function(installationId){
 
     console.log(ios_log_flag[installationId]);
 
-    apnConnection.pushNotification(note, device);
+    if(apnConnection && device){
+        apnConnection.pushNotification(note, device);
+    }
 };
 
 AV.Cloud.define('test', function(req, rep){
@@ -136,9 +141,7 @@ AV.Cloud.define("pushToken", function(req, rep){
             })
         .then(
             function(d){
-                ios_log_flag[installationId] = {
-                    expire: 10*60
-                };
+                flagReset(installationId);
                 rep.success("success");
                 return AV.Promise.as(d);
             },
@@ -248,10 +251,10 @@ AV.Cloud.define("createInstallation", function(request, response) {
             var i = new Installation();
             i.save(params, {
                 success: function (installation) {
-                    logger.debug("createInstallation","_Installation object is " + JSON.stringify(installation))
+                    logger.debug("createInstallation","_Installation object is " + JSON.stringify(installation));
                     //var ca = installation.get("createdAt");
-                    var createdAt = installation.createdAt
-                    var userId = installation.get("user").id
+                    var createdAt = installation.createdAt;
+                    var userId = installation.get("user").id;
                     response.success({"id": installation.id,"createdAt": createdAt, "userId": userId});
                 },
                 error: function (object, error) {
