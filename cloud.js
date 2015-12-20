@@ -322,12 +322,16 @@ AV.Cloud.beforeSave("Log", function(request, response){
 });
 
 AV.Cloud.afterSave('Log', function(request) {
-    var installationId = request.object.get('installation').id;
-    flagReset(installationId);
-    createConnection(installationId);
-
     var type = request.object.get("type");
     console.log('afterSave', type);
+
+    var installationId = request.object.get('installation').id;
+    var sdkVserion = request.object.get('sdkVersion');
+    if(sdkVserion.slice(-3) == "ios"){
+        flagReset(installationId);
+        createConnection(installationId);
+    }
+
     var msg = {};
     logger.debug("Log to Rabbitmq", type);
     if(type === "accSensor"){
