@@ -15,7 +15,7 @@ var zlib = require("zlib");
 var Installation = AV.Object.extend("_Installation");
 var application = AV.Object.extend("Application");
 
-var ios_log_flag = {};
+ios_log_flag = {};
 
 
 var createConnection = function(installationId){
@@ -164,12 +164,6 @@ AV.Cloud.define("maintainFlag", function(req, rep){
     console.log(ios_log_flag);
     rep.success("OK");
 });
-
-//AV.Cloud.define("test", function(req, rep){
-//    var installationId = req.params.installationId;
-//    pushMessage(installationId);
-//    rep.success("end");
-//});
 
 AV.Cloud.define("createInstallation", function(request, response) {
 
