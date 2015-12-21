@@ -63,6 +63,12 @@ var createConnection = function(installationId){
                     var cert = response[0].buffer;
                     var key = response[1].buffer;
                     var passpharse = response[2];
+
+
+                    console.log(cert);
+                    console.log(key);
+                    console.log(passpharse);
+
                     if(cert && key){
                         var apnConnection =
                             new apn.Connection({
@@ -91,7 +97,7 @@ var flagReset = function(installationId){
         ios_log_flag[installationId] = {};
     }
 
-    ios_log_flag[installationId].expire = 10*60;
+    ios_log_flag[installationId].expire = 10;
 };
 
 var flagInc = function(installationId){
@@ -99,8 +105,12 @@ var flagInc = function(installationId){
 };
 
 var pushMessage = function(installationId){
-    var apnConnection = ios_log_flag[installationId].apnConnection;
-    var device = ios_log_flag[installationId].device;
+    var config = ios_log_flag[installationId];
+    var apnConnection = config.apnConnection;
+    var device = config.device;
+
+    //console.log(device)
+    //console.log(apnConnection)
 
     var note = new apn.Notification();
     note.expiry = Math.floor(Date.now() / 1000) + 3600;
@@ -110,10 +120,10 @@ var pushMessage = function(installationId){
         "value": "mageia_test"
     }};
 
-    console.log(ios_log_flag[installationId]);
 
     if(apnConnection && device){
         apnConnection.pushNotification(note, device);
+        console.log("\<Sended Msg....\>  " + installationId);
     }
 };
 
@@ -142,8 +152,8 @@ AV.Cloud.define("pushToken", function(req, rep){
         .then(
             function(d){
                 flagReset(installationId);
-                rep.success("success");
-                return AV.Promise.as(d);
+                rep.success('<'+d.id+'>: ' + "push token success!");
+                return createConnection(installationId);
             },
             function(e){
                 rep.error(e);
