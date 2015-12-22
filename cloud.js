@@ -19,6 +19,10 @@ ios_log_flag = {};
 
 
 var createConnection = function(installationId){
+    if(!ios_log_flag[installationId]){
+        flagReset(installationId);
+    }
+
     if(!ios_log_flag[installationId].apnConnection || !ios_log_flag[installationId].device){
         var installation_query = new AV.Query(Installation);
         installation_query.equalTo("objectId", installationId);
@@ -28,15 +32,15 @@ var createConnection = function(installationId){
                     var installation = installation_array[0];
                     var token = installation.get('token');
                     if(token){
-                        var device = new apn.Device(token);
+                        ios_log_flag[installationId].device = new apn.Device(token);
+                        ios_log_flag[installationId].has_token = token ? true: false;
                     }else{
-                        device = null;
+                        ios_log_flag[installationId].device = null;
+                        ios_log_flag[installationId].has_token = token ? true: false;
+                        return AV.Promise.error("don't have token");
                     }
-                    ios_log_flag[installationId].device = device;
-                    ios_log_flag[installationId].has_token = device ? true: false;
 
                     var appId = installation.get('application').id;
-
                     var app_query = new AV.Query(application);
                     app_query.equalTo("objectId", appId);
                     return app_query.find();
@@ -64,16 +68,12 @@ var createConnection = function(installationId){
                     var key = response[1].buffer;
                     var passpharse = response[2];
 
-
-                    console.log(cert);
-                    console.log(key);
-                    console.log(passpharse);
-
                     if(cert && key){
                         var apnConnection =
                             new apn.Connection({
                                 cert: cert,
                                 key: key,
+                                production: false,
                                 passphrase: passpharse
                             });
                     }else{
@@ -97,29 +97,26 @@ var flagReset = function(installationId){
         ios_log_flag[installationId] = {};
     }
 
-    ios_log_flag[installationId].expire = 10;
+    ios_log_flag[installationId].expire = 5;
 };
 
 var flagInc = function(installationId){
     ios_log_flag[installationId].expire -= 1;
 };
 
-var pushMessage = function(installationId){
+var pushMessage = function(installationId, msg){
     var config = ios_log_flag[installationId];
+    if(!config) return;
+
     var apnConnection = config.apnConnection;
     var device = config.device;
-
-    //console.log(device)
-    //console.log(apnConnection)
 
     var note = new apn.Notification();
     note.expiry = Math.floor(Date.now() / 1000) + 3600;
     note.contentAvailable = 1;
-    note.payload = {'senz-sdk-notify': {
-        "type": "collect-data",
-        "value": "mageia_test"
-    }};
-
+    note.payload = {
+        "senz-sdk-notify": msg['senz-sdk-notify']
+    };
 
     if(apnConnection && device){
         apnConnection.pushNotification(note, device);
@@ -127,10 +124,18 @@ var pushMessage = function(installationId){
     }
 };
 
-AV.Cloud.define('test', function(req, rep){
+AV.Cloud.define('pushAPNMessage', function(req, rep){
     var installationId = req.params.installationId;
-    pushMessage(installationId);
-    rep.success("end");
+    var msg = req.params.msg;
+    createConnection(installationId)
+        .then(
+            function(){
+                pushMessage(installationId, msg);
+                rep.success("end");
+            },
+            function(e){
+                rep.error(e);
+            });
 });
 
 AV.Cloud.define("pushToken", function(req, rep){
@@ -166,7 +171,10 @@ AV.Cloud.define("maintainFlag", function(req, rep){
         flagInc(installationId);
 
         if(ios_log_flag[installationId].expire <= 0){
-            pushMessage(installationId);
+            var msg = {'senz-sdk-notify': {
+                "type": "collect-data"
+            }};
+            pushMessage(installationId, msg);
             flagReset(installationId);
         }
     });
