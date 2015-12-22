@@ -115,8 +115,13 @@ var pushMessage = function(installationId, msg){
     note.expiry = Math.floor(Date.now() / 1000) + 3600;
     note.contentAvailable = 1;
     note.payload = {
-        "senz-sdk-notify": msg['senz-sdk-notify']
+        "senz-sdk-notify": msg
     };
+
+    console.log("MSG: ");
+    console.log(installationId);
+    console.log(note.payload);
+    console.log("MSG!!!");
 
     if(apnConnection && device){
         apnConnection.pushNotification(note, device);
@@ -126,7 +131,12 @@ var pushMessage = function(installationId, msg){
 
 AV.Cloud.define('pushAPNMessage', function(req, rep){
     var installationId = req.params.installationId;
-    var msg = req.params.msg;
+    var msg = {
+        type: req.params.type,
+        status: req.params.status,
+        timestamp: req.params.timestamp,
+        probability: req.params.probability
+    };
     createConnection(installationId)
         .then(
             function(){
@@ -171,15 +181,15 @@ AV.Cloud.define("maintainFlag", function(req, rep){
         flagInc(installationId);
 
         if(ios_log_flag[installationId].expire <= 0){
-            var msg = {'senz-sdk-notify': {
+            var msg = {
                 "type": "collect-data"
-            }};
+            };
             pushMessage(installationId, msg);
             flagReset(installationId);
         }
     });
     console.log("Timer:  ");
-    console.log(ios_log_flag);
+    //console.log(ios_log_flag);
     rep.success("OK");
 });
 
