@@ -73,7 +73,7 @@ var createConnection = function(installationId){
                             new apn.Connection({
                                 cert: cert,
                                 key: key,
-                                production: false,
+                                production: true,
                                 passphrase: passpharse
                             });
                     }else{
