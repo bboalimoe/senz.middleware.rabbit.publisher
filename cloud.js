@@ -97,7 +97,7 @@ var flagReset = function(installationId){
         ios_log_flag[installationId] = {};
     }
 
-    ios_log_flag[installationId].expire = 5;
+    ios_log_flag[installationId].expire = 10;
 };
 
 var flagInc = function(installationId){
@@ -120,7 +120,7 @@ var pushMessage = function(installationId, msg){
 
     console.log("MSG: ");
     console.log(installationId);
-    console.log(note.payload);
+    console.log(JSON.stringify(note.payload));
     console.log("MSG!!!");
 
     if(apnConnection && device){
@@ -184,12 +184,12 @@ AV.Cloud.define("maintainFlag", function(req, rep){
             var msg = {
                 "type": "collect-data"
             };
+            console.log(JSON.stringify(msg));
             pushMessage(installationId, msg);
             flagReset(installationId);
         }
     });
-    console.log("Timer:  ");
-    //console.log(ios_log_flag);
+    console.log("Timer Schedule!");
     rep.success("OK");
 });
 
