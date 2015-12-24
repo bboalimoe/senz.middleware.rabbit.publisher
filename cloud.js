@@ -16,6 +16,9 @@ var Installation = AV.Object.extend("_Installation");
 var application = AV.Object.extend("Application");
 
 ios_log_flag = {};
+setInterval(function(){
+    maintainFlag();
+}, 10000);
 
 
 var createConnection = function(installationId){
@@ -76,10 +79,18 @@ var createConnection = function(installationId){
                                 production: true,
                                 passphrase: passpharse
                             });
+                        var apnConnection_dev =
+                            new apn.Connection({
+                                cert: cert,
+                                key: key,
+                                production: false,
+                                passphrase: passpharse
+                            });
                     }else{
                         apnConnection = null;
                     }
                     ios_log_flag[installationId].apnConnection = apnConnection;
+                    ios_log_flag[installationId].apnConnection_dev = apnConnection_dev;
                     ios_log_flag[installationId].has_cert = apnConnection ? true : false;
 
                     return AV.Promise.as(ios_log_flag[installationId]);
@@ -97,7 +108,7 @@ var flagReset = function(installationId){
         ios_log_flag[installationId] = {};
     }
 
-    ios_log_flag[installationId].expire = 5;
+    ios_log_flag[installationId].expire = 6;
 };
 
 var flagInc = function(installationId){
@@ -109,10 +120,10 @@ var pushMessage = function(installationId, msg){
     if(!config) return;
 
     var apnConnection = config.apnConnection;
+    var apnConnection_dev = config.apnConnection_dev;
     var device = config.device;
 
     var note = new apn.Notification();
-    note.expiry = Math.floor(Date.now() / 1000) + 3600;
     note.contentAvailable = 1;
     note.payload = {
         "senz-sdk-notify": msg
@@ -125,8 +136,26 @@ var pushMessage = function(installationId, msg){
 
     if(apnConnection && device){
         apnConnection.pushNotification(note, device);
+        apnConnection_dev.pushNotification(note, device);
         console.log("\<Sended Msg....\>  " + installationId);
     }
+};
+
+var maintainFlag = function(){
+    Object.keys(ios_log_flag).forEach(function(installationId){
+        console.log("Timer: " + installationId + " has_cert: " + ios_log_flag[installationId].has_cert);
+        flagInc(installationId);
+
+        if(ios_log_flag[installationId].expire <= 0){
+            var msg = {
+                "type": "collect-data"
+            };
+            console.log(JSON.stringify(msg));
+            pushMessage(installationId, msg);
+            flagReset(installationId);
+        }
+    });
+    console.log("Timer Schedule!");
 };
 
 AV.Cloud.define('pushAPNMessage', function(req, rep){
@@ -166,6 +195,7 @@ AV.Cloud.define("pushToken", function(req, rep){
             })
         .then(
             function(d){
+                ios_log_flag[installationId] = {};
                 flagReset(installationId);
                 rep.success('<'+d.id+'>: ' + "push token success!");
                 return createConnection(installationId);
@@ -174,24 +204,6 @@ AV.Cloud.define("pushToken", function(req, rep){
                 rep.error(e);
                 return AV.Promise.error(e);
             })
-});
-
-AV.Cloud.define("maintainFlag", function(req, rep){
-    Object.keys(ios_log_flag).forEach(function(installationId){
-        console.log("Timer: " + installationId + " has_cert: " + ios_log_flag[installationId].has_cert);
-        flagInc(installationId);
-
-        if(ios_log_flag[installationId].expire <= 0){
-            var msg = {
-                "type": "collect-data"
-            };
-            console.log(JSON.stringify(msg));
-            pushMessage(installationId, msg);
-            flagReset(installationId);
-        }
-    });
-    console.log("Timer Schedule!");
-    rep.success("OK");
 });
 
 AV.Cloud.define("createInstallation", function(request, response) {
