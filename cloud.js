@@ -97,7 +97,7 @@ var flagReset = function(installationId){
         ios_log_flag[installationId] = {};
     }
 
-    ios_log_flag[installationId].expire = 10*60;
+    ios_log_flag[installationId].expire = 5;
 };
 
 var flagInc = function(installationId){
@@ -178,6 +178,7 @@ AV.Cloud.define("pushToken", function(req, rep){
 
 AV.Cloud.define("maintainFlag", function(req, rep){
     Object.keys(ios_log_flag).forEach(function(installationId){
+        console.log("Timer: " + installationId + " has_cert: " + ios_log_flag[installationId].has_cert);
         flagInc(installationId);
 
         if(ios_log_flag[installationId].expire <= 0){
