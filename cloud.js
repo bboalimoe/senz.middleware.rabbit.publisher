@@ -20,7 +20,6 @@ setInterval(function(){
     maintainFlag();
 }, 10000);
 
-
 var createConnection = function(installationId){
     if(!ios_log_flag[installationId]){
         flagReset(installationId);
@@ -158,6 +157,7 @@ var maintainFlag = function(){
     console.log("Timer Schedule!");
 };
 
+ios_msg_push_flag = {};
 AV.Cloud.define('pushAPNMessage', function(req, rep){
     var installationId = req.params.installationId;
     var msg = {
@@ -169,7 +169,19 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
     createConnection(installationId)
         .then(
             function(){
-                pushMessage(installationId, msg);
+                if((!ios_msg_push_flag[installationId]) || (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == true) ||
+                    (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == undefined)){
+
+                    if (!ios_msg_push_flag[installationId]) {
+                        ios_msg_push_flag[installationId] = {};
+                    }
+                    ios_msg_push_flag[installationId][req.params.type] = false;
+                    setTimeout(function(){
+                        ios_msg_push_flag[installationId][req.params.type] = true;
+                    }, 5*60*1000);
+
+                    pushMessage(installationId, msg);
+                }
                 rep.success("end");
             },
             function(e){
