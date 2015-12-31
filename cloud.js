@@ -160,6 +160,7 @@ var maintainFlag = function(){
 ios_msg_push_flag = {};
 AV.Cloud.define('pushAPNMessage', function(req, rep){
     var installationId = req.params.installationId;
+    var source = req.params.source;
     var msg = {
         type: req.params.type,
         status: req.params.status,
@@ -169,7 +170,8 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
     createConnection(installationId)
         .then(
             function(){
-                if((!ios_msg_push_flag[installationId]) || (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == true) ||
+                if(source == 'panel' || (!ios_msg_push_flag[installationId]) ||
+                    (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == true) ||
                     (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == undefined)){
 
                     if (!ios_msg_push_flag[installationId]) {
