@@ -128,15 +128,12 @@ var pushMessage = function(installationId, msg){
         "senz-sdk-notify": msg
     };
 
-    console.log("MSG: ");
-    console.log(installationId);
-    console.log(JSON.stringify(note.payload));
-    console.log("MSG!!!");
+    logger.debug("APN_MSG: "+installationId, JSON.stringify(note.payload));
 
     if(apnConnection && device){
         apnConnection.pushNotification(note, device);
         apnConnection_dev.pushNotification(note, device);
-        console.log("\<Sended Msg....\>  " + installationId);
+        logger.debug("\<Sended Msg....\>  " , installationId);
     }
 };
 
