@@ -18,7 +18,43 @@ var application = AV.Object.extend("Application");
 ios_log_flag = {};
 setInterval(function(){
     maintainFlag();
-}, 10000);
+}, 30000);
+
+var connOnBoot = function(){
+    var app_query = new AV.Query(application);
+    app_query.exists("key_url");
+    app_query.exists("cert_url");
+    return app_query.find()
+        .then(
+            function(app_list){
+                var installation_promises = [];
+                app_list.forEach(function(app){
+                    logger.debug(app.id);
+                    var installation_query = new AV.Query(Installation);
+                    installation_query.exists("token");
+                    installation_query.descending("updatedAt");
+                    installation_query.equalTo("application", app);
+                    installation_promises.push(installation_query.find());
+                });
+                return AV.Promise.all(installation_promises);
+            })
+        .then(
+            function(installations_list){
+                installations_list.forEach(function(installations){
+                    if(installations){
+                        installations.forEach(function(installation){
+                            createConnection(installation.id);
+                        });
+                    }
+                });
+                return AV.Promise.as("creating connection on boot!");
+            })
+        .catch(
+            function(e){
+                logger.err("OnBoot", JSON.stringify(e));
+                return AV.Promise.error(e);
+            })
+};
 
 var createConnection = function(installationId){
     if(!ios_log_flag[installationId]){
@@ -107,7 +143,7 @@ var flagReset = function(installationId){
         ios_log_flag[installationId] = {};
     }
 
-    ios_log_flag[installationId].expire = 60;
+    ios_log_flag[installationId].expire = 20;
 };
 
 var flagInc = function(installationId){
@@ -378,7 +414,7 @@ AV.Cloud.afterSave('Log', function(request) {
     console.log('afterSave', type);
 
     var installationId = request.object.get('installation').id;
-    var sdkVserion = request.object.get('sdkVersion');
+    var sdkVserion = request.object.get('sdkVersion') || "";
     if(sdkVserion.slice(-3) == "ios"){
         flagReset(installationId);
         createConnection(installationId);
@@ -555,4 +591,5 @@ AV.Cloud.afterSave('Log', function(request) {
 //
 //});
 
+connOnBoot();
 module.exports = AV.Cloud;
