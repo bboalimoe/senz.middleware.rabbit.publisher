@@ -216,6 +216,7 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
                         ios_msg_push_flag[installationId][req.params.type] = true;
                     }, 5*60*1000);
 
+
                     pushMessage(installationId, msg);
                 }
                 rep.success("end");
