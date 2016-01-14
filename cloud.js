@@ -143,7 +143,7 @@ var flagReset = function(installationId){
         ios_log_flag[installationId] = {};
     }
 
-    ios_log_flag[installationId].expire = 6;
+    ios_log_flag[installationId].expire = 60;
 };
 
 var flagInc = function(installationId){
