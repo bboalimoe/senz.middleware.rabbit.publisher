@@ -200,6 +200,7 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
         timestamp: req.params.timestamp,
         probability: req.params.probability
     };
+    logger.debug("pushAPNMessage", JSON.stringify(msg));
     createConnection(installationId)
         .then(
             function(){
