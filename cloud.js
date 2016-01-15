@@ -69,6 +69,7 @@ var createConnection = function(installationId){
                 function(installation_array){
                     var installation = installation_array[0];
                     var token = installation.get('token');
+                    console.log(installation.get('token'));
                     if(token){
                         ios_log_flag[installationId].device = new apn.Device(token);
                         ios_log_flag[installationId].has_token = token ? true: false;
@@ -169,13 +170,12 @@ var pushMessage = function(installationId, msg){
     if(apnConnection && device){
         apnConnection.pushNotification(note, device);
         apnConnection_dev.pushNotification(note, device);
-        logger.debug("\<Sended Msg....\>  " , installationId);
+        logger.debug("\<Sended Msg....\>" , installationId);
     }
 };
 
 var maintainFlag = function(){
     Object.keys(ios_log_flag).forEach(function(installationId){
-        console.log("Timer: " + installationId + " has_cert: " + ios_log_flag[installationId].has_cert);
         flagInc(installationId);
 
         if(ios_log_flag[installationId].expire <= 0){
@@ -214,8 +214,7 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
                     ios_msg_push_flag[installationId][req.params.type] = false;
                     setTimeout(function(){
                         ios_msg_push_flag[installationId][req.params.type] = true;
-                    }, 5*60*1000);
-
+                    }, 3*60*1000);
 
                     pushMessage(installationId, msg);
                 }
