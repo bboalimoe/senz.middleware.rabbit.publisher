@@ -69,7 +69,8 @@ var createConnection = function(installationId){
                 function(installation_array){
                     var installation = installation_array[0];
                     var token = installation.get('token');
-                    console.log(installation.get('token'));
+                    logger.debug("createConnection", "installationId: " + installation.id
+                        + " Token: " + installation.get('token'));
                     if(token){
                         ios_log_flag[installationId].device = new apn.Device(token);
                         ios_log_flag[installationId].has_token = token ? true: false;
