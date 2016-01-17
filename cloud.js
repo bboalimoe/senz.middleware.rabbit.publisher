@@ -61,7 +61,7 @@ var createConnection = function(installationId){
         flagReset(installationId);
     }
 
-    if(!ios_log_flag[installationId].apnConnection || !ios_log_flag[installationId].device){
+    //if(!ios_log_flag[installationId].apnConnection || !ios_log_flag[installationId].device){
         var installation_query = new AV.Query(Installation);
         installation_query.equalTo("objectId", installationId);
         return installation_query.find()
@@ -135,9 +135,9 @@ var createConnection = function(installationId){
                 function(e){
                     return AV.Promise.error(e);
                 });
-    }else{
-        return AV.Promise.as(ios_log_flag[installationId]);
-    }
+    //}else{
+    //    return AV.Promise.as(ios_log_flag[installationId]);
+    //}
 };
 
 var flagReset = function(installationId){
@@ -202,9 +202,9 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
         probability: req.params.probability
     };
     logger.debug("pushAPNMessage", JSON.stringify(msg));
-    createConnection(installationId)
-        .then(
-            function(){
+    //createConnection(installationId)
+    //    .then(
+    //        function(){
                 if(source == 'panel' || (!ios_msg_push_flag[installationId]) ||
                     (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == true) ||
                     (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == undefined)){
@@ -220,10 +220,10 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
                     pushMessage(installationId, msg);
                 }
                 rep.success("end");
-            },
-            function(e){
-                rep.error(e);
-            });
+            //},
+            //function(e){
+            //    rep.error(e);
+            //});
 });
 
 AV.Cloud.define("pushToken", function(req, rep){
@@ -419,7 +419,7 @@ AV.Cloud.afterSave('Log', function(request) {
     var sdkVserion = request.object.get('sdkVersion') || "";
     if(sdkVserion.slice(-3) == "ios"){
         flagReset(installationId);
-        createConnection(installationId);
+        //createConnection(installationId);
     }
 
     var msg = {};
