@@ -27,6 +27,7 @@
         "request":"",
         "hzip":"",
         "apn":"",
+        "apns":"",
         "sendcloud":"",
         "avoscloud-sdk":"",
         "heapdump":""

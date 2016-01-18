@@ -2,12 +2,10 @@ var AV = require('leanengine');
 var publisher = require('./essential_modules/rabbit_lib/publisher');
 var log = require("./essential_modules/utils/logger").log;
 var logger = new log("cloud hook");
-//var _ = require("underscore");
 var n = require("nonce")();
 var uuid = require("uuid");
 var createInstallation = require("./essential_modules/utils/lean_utils.js").createInstallation;
 var createUser = require("./essential_modules/utils/lean_utils.js").createUser;
-//var bugsnag = require("bugsnag");
 var converter = require("./essential_modules/utils/coordinate_trans.js");
 var alertist = require("./essential_modules/utils/send_notify.js");
 var apn = require("apn");
@@ -61,83 +59,79 @@ var createConnection = function(installationId){
         flagReset(installationId);
     }
 
-    //if(!ios_log_flag[installationId].apnConnection || !ios_log_flag[installationId].device){
-        var installation_query = new AV.Query(Installation);
-        installation_query.equalTo("objectId", installationId);
-        return installation_query.find()
-            .then(
-                function(installation_array){
-                    var installation = installation_array[0];
-                    var token = installation.get('token');
-                    logger.debug("createConnection", "installationId: " + installation.id
-                        + " Token: " + installation.get('token'));
-                    if(token){
-                        ios_log_flag[installationId].device = new apn.Device(token);
-                        ios_log_flag[installationId].has_token = token ? true: false;
-                    }else{
-                        ios_log_flag[installationId].device = null;
-                        ios_log_flag[installationId].has_token = token ? true: false;
-                        return AV.Promise.error("don't have token");
-                    }
+    var installation_query = new AV.Query(Installation);
+    installation_query.equalTo("objectId", installationId);
+    return installation_query.find()
+        .then(
+            function(installation_array){
+                var installation = installation_array[0];
+                var token = installation.get('token');
+                logger.debug("createConnection", "installationId: " + installation.id
+                    + " Token: " + installation.get('token'));
+                if(token){
+                    ios_log_flag[installationId].device = new apn.Device(token);
+                    ios_log_flag[installationId].has_token = token ? true: false;
+                }else{
+                    ios_log_flag[installationId].device = null;
+                    ios_log_flag[installationId].has_token = token ? true: false;
+                    return AV.Promise.error("don't have token");
+                }
 
-                    var appId = installation.get('application').id;
-                    var app_query = new AV.Query(application);
-                    app_query.equalTo("objectId", appId);
-                    return app_query.find();
-                },
-                function(e){
-                    return AV.Promise.error(e);
-                })
-            .then(
-                function(app_array){
-                    var app = app_array[0];
-                    var cert_url = app.get('cert_url') || "";
-                    var key_url = app.get('key_url') || "";
-                    return AV.Promise.all([
-                        AV.Cloud.httpRequest({ url: cert_url }),
-                        AV.Cloud.httpRequest({ url: key_url }),
-                        app.get('passphrase')
-                    ]);
-                },
-                function(e){
-                    return AV.Promise.error(e);
-                })
-            .then(
-                function(response) {
-                    var cert = response[0].buffer;
-                    var key = response[1].buffer;
-                    var passpharse = response[2];
+                var appId = installation.get('application').id;
+                var app_query = new AV.Query(application);
+                app_query.equalTo("objectId", appId);
+                return app_query.find();
+            },
+            function(e){
+                return AV.Promise.error(e);
+            })
+        .then(
+            function(app_array){
+                var app = app_array[0];
+                var cert_url = app.get('cert_url') || "";
+                var key_url = app.get('key_url') || "";
+                return AV.Promise.all([
+                    AV.Cloud.httpRequest({ url: cert_url }),
+                    AV.Cloud.httpRequest({ url: key_url }),
+                    app.get('passphrase')
+                ]);
+            },
+            function(e){
+                return AV.Promise.error(e);
+            })
+        .then(
+            function(response) {
+                var cert = response[0].buffer;
+                var key = response[1].buffer;
+                var passpharse = response[2];
 
-                    if(cert && key){
-                        var apnConnection =
-                            new apn.Connection({
-                                cert: cert,
-                                key: key,
-                                production: true,
-                                passphrase: passpharse
-                            });
-                        var apnConnection_dev =
-                            new apn.Connection({
-                                cert: cert,
-                                key: key,
-                                production: false,
-                                passphrase: passpharse
-                            });
-                    }else{
-                        apnConnection = null;
-                    }
-                    ios_log_flag[installationId].apnConnection = apnConnection;
-                    ios_log_flag[installationId].apnConnection_dev = apnConnection_dev;
-                    ios_log_flag[installationId].has_cert = apnConnection ? true : false;
+                if(cert && key){
+                    var apnConnection =
+                        new apn.Connection({
+                            cert: cert,
+                            key: key,
+                            production: true,
+                            passphrase: passpharse
+                        });
+                    var apnConnection_dev =
+                        new apn.Connection({
+                            cert: cert,
+                            key: key,
+                            production: false,
+                            passphrase: passpharse
+                        });
+                }else{
+                    apnConnection = null;
+                }
+                ios_log_flag[installationId].apnConnection = apnConnection;
+                ios_log_flag[installationId].apnConnection_dev = apnConnection_dev;
+                ios_log_flag[installationId].has_cert = apnConnection ? true : false;
 
-                    return AV.Promise.as(ios_log_flag[installationId]);
-                },
-                function(e){
-                    return AV.Promise.error(e);
-                });
-    //}else{
-    //    return AV.Promise.as(ios_log_flag[installationId]);
-    //}
+                return AV.Promise.as(ios_log_flag[installationId]);
+            },
+            function(e){
+                return AV.Promise.error(e);
+            });
 };
 
 var flagReset = function(installationId){
@@ -186,6 +180,7 @@ var maintainFlag = function(){
             console.log(JSON.stringify(msg));
             pushMessage(installationId, msg);
             flagReset(installationId);
+            createConnection(installationId);
         }
     });
     console.log("Timer Schedule!");
@@ -202,28 +197,22 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
         probability: req.params.probability
     };
     logger.debug("pushAPNMessage", JSON.stringify(msg));
-    //createConnection(installationId)
-    //    .then(
-    //        function(){
-                if(source == 'panel' || (!ios_msg_push_flag[installationId]) ||
-                    (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == true) ||
-                    (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == undefined)){
 
-                    if (!ios_msg_push_flag[installationId]) {
-                        ios_msg_push_flag[installationId] = {};
-                    }
-                    ios_msg_push_flag[installationId][req.params.type] = false;
-                    setTimeout(function(){
-                        ios_msg_push_flag[installationId][req.params.type] = true;
-                    }, 3*60*1000);
+    if(source == 'panel' || (!ios_msg_push_flag[installationId]) ||
+        (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == true) ||
+        (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == undefined)){
 
-                    pushMessage(installationId, msg);
-                }
-                rep.success("end");
-            //},
-            //function(e){
-            //    rep.error(e);
-            //});
+        if (!ios_msg_push_flag[installationId]) {
+            ios_msg_push_flag[installationId] = {};
+        }
+        ios_msg_push_flag[installationId][req.params.type] = false;
+        setTimeout(function(){
+            ios_msg_push_flag[installationId][req.params.type] = true;
+        }, 3*60*1000);
+
+        pushMessage(installationId, msg);
+    }
+    rep.success("END!");
 });
 
 AV.Cloud.define("pushToken", function(req, rep){

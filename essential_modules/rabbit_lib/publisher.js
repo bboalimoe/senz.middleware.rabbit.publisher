@@ -37,7 +37,7 @@ publishMsg = function(msg, event) {
 };
 
 exports.publishMessage = function(msg, event){
-    logger.info("","topo is " + JSON.stringify(configuration.topology) );
+    //logger.info("","topo is " + JSON.stringify(configuration.topology) );
     rabbit.configure(configuration.topology)
         .then(publishMsg(msg, event));
 };
