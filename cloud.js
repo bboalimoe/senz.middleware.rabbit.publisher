@@ -198,20 +198,20 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
     };
     logger.debug("pushAPNMessage", JSON.stringify(msg));
 
-    if(source == 'panel' || (!ios_msg_push_flag[installationId]) ||
-        (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == true) ||
-        (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == undefined)){
-
-        if (!ios_msg_push_flag[installationId]) {
-            ios_msg_push_flag[installationId] = {};
-        }
-        ios_msg_push_flag[installationId][req.params.type] = false;
-        setTimeout(function(){
-            ios_msg_push_flag[installationId][req.params.type] = true;
-        }, 3*60*1000);
+    //if(source == 'panel' || (!ios_msg_push_flag[installationId]) ||
+    //    (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == true) ||
+    //    (ios_msg_push_flag[installationId] && ios_msg_push_flag[installationId][req.params.type] == undefined)){
+    //
+    //    if (!ios_msg_push_flag[installationId]) {
+    //        ios_msg_push_flag[installationId] = {};
+    //    }
+    //    ios_msg_push_flag[installationId][req.params.type] = false;
+    //    setTimeout(function(){
+    //        ios_msg_push_flag[installationId][req.params.type] = true;
+    //    }, 3*60*1000);
 
         pushMessage(installationId, msg);
-    }
+    //}
     rep.success("END!");
 });
 
@@ -356,30 +356,25 @@ AV.Cloud.beforeSave("Log", function(request, response){
         var backup_location = {"lat":pre_location.latitude, "lng":pre_location.longitude};
         var c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude);
         console.log("fuck");
-        source = "baidu offline converter WGS to baidu";
+        var source = "baidu offline converter WGS to baidu";
         var location = pre_location;
         location.latitude = c_location.lat;
         location.longitude = c_location.lng;
         request.object.set("pre_location",backup_location);
         request.object.set("location", location);
         request.object.set("source", source);
-        //request.object.set("pre_location",pre_location)
     }
 
     if ( (pre_type == "accSensor" || pre_type ==  "magneticSensor" || pre_type == "sensor" || pre_type == "motionLog")
         && (compressed == "gzip" || compressed == "gzipped") ){
 
-        //console.log(pre_type)
-        //console.log(compressed)
         var pre_value = request.object.get("value");
         var compressed_base64_string = pre_value.events;
         var buffer = new Buffer(compressed_base64_string,"base64");
         zlib.unzip(buffer,function(err, buffer){
             if(!err) {
-                //console.log(JSON.stringify(buffer.toString()))
                 pre_value.events = JSON.parse(buffer.toString());
                 request.object.set("compressed","ungzipped");
-                //console.log(pre_value)
                 request.object.set("value", pre_value);
 
                 response.success();
@@ -407,7 +402,7 @@ AV.Cloud.afterSave('Log', function(request) {
     var installationId = request.object.get('installation').id;
     var sdkVserion = request.object.get('sdkVersion') || "";
     if(sdkVserion.slice(-3) == "ios"){
-        flagReset(installationId);
+        //flagReset(installationId);
         //createConnection(installationId);
     }
 
@@ -501,86 +496,6 @@ AV.Cloud.afterSave('Log', function(request) {
     }
 });
 
-
-//
-//AV.Cloud.afterUpdate('Log', function(request) {
-//    var type = request.object.get("type");
-//    logger.debug("Log to Rabbitmq", type);
-//    if(type === "accSensor"){
-//
-//        logger.info("Log to Rabbitmq",'There is a new motion comming.');
-//        msg = {
-//            'objectId': request.object.id,
-//            'timestamp': Date.now()
-//        };
-//        logger.info("Log to Rabbitmq",'The new motion object id: ' + request.object.id);
-//        publisher.publishMessage(msg, 'new_motion_arrival');
-//
-//    }
-//    else if(type === "mic"){
-//        logger.info("Log to Rabbitmq",'There is a new sound comming.');
-//        msg = {
-//            'objectId': request.object.id,
-//            'timestamp': Date.now()
-//        };
-//        logger.info("Log to Rabbitmq",'The new sound object id: ' + request.object.id);
-//        publisher.publishMessage(msg, 'new_sound_arrival');
-//    }
-//    else if(type === "location"){
-//
-//        logger.info("Log to Rabbitmq",'There is a new location comming.');
-//        msg = {
-//            'objectId': request.object.id,
-//            'timestamp': Date.now()
-//        };
-//        logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
-//        publisher.publishMessage(msg, 'new_location_arrival');
-//    }
-//    else if(type === "calendar"){
-//
-//        logger.info("Log to Rabbitmq",'There is a new calendar comming.');
-//        msg = {
-//            'object': request.object,
-//            'timestamp': Date.now()
-//        };
-//        logger.info("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
-//        publisher.publishMessage(msg, 'new_calendar_arrival');
-//    }else if(type === "application"){
-//
-//        logger.info("Log to Rabbitmq",'There is a new applist comming.');
-//        msg = {
-//            'object': request.object,
-//            'timestamp': Date.now()
-//        };
-//        logger.info("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
-//        publisher.publishMessage(msg, 'new_applist_arrival');
-//    }else if(type === "predictedMotion"){
-//
-//        logger.info("Log to Rabbitmq",'There is a new predicted motion comming.');
-//        msg = {
-//            'object': request.object,
-//            'timestamp': Date.now()
-//        };
-//        logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
-//        //console.log(msg)
-//        publisher.publishMessage(msg, 'new_predicted_motion_arrival');
-//    }
-//    else if(type === "sensor"){
-//        console.log("fuck update sensor object");
-//        logger.info("Log to Rabbitmq",'There is a new ios motion sensors data comming.');
-//        msg = {
-//            'object': request.object,
-//            'timestamp': Date.now()
-//        };
-//        logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
-//        //console.log(msg)
-//        publisher.publishMessage(msg, 'new_ios_motion_arrival');
-//    }
-//    else{
-//        logger.error("Log to Rabbitmq","just saved object type doesn't match any value [sensor],[mic],[location]")
-//    }
-//
-//});
 
 connOnBoot();
 module.exports = AV.Cloud;
