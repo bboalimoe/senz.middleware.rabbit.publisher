@@ -422,8 +422,8 @@ AV.Cloud.define("pushToken", function(req, rep){
             })
         .then(
             function(d){
-                ios_log_flag[installationId] = {};
-                flagReset(installationId);
+                notification_cache[installationId] = {};
+                resetExpire(installationId);
                 rep.success('<'+d.id+'>: ' + "push token success!");
                 return createConnection(installationId);
             },
@@ -437,7 +437,7 @@ AV.Cloud.define("createInstallation", function(request, response) {
 
     logger.debug("createInstallation",JSON.stringify(request.params));
 
-    var appid = request.params.appid,
+    var appid = request.params.appid || request.params.appId,
         hardwareId = request.params.hardwareId,
         deviceType = request.params.deviceType,
         installationIdForBroadcasting = uuid.v4(),
