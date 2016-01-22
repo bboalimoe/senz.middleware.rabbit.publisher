@@ -21,7 +21,7 @@ var app_list = [
     "55bc5d8e00b0cb9c40dec37b"
 ];
 var notification_cache = {};
-var defaultExpire = 6;
+var defaultExpire = 60;
 
 var createOnBoot = function(){
     var installation_query = new AV.Query(Installation);
