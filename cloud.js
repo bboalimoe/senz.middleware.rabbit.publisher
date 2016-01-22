@@ -17,10 +17,11 @@ var application = AV.Object.extend("Application");
 
 var app_list = [
     "5678df1560b2f2e841665918",
-    "564573f660b25b79f067aeef"
+    "564573f660b25b79f067aeef",
+    "55bc5d8e00b0cb9c40dec37b"
 ];
 var notification_cache = {};
-var defaultExpire = 60;
+var defaultExpire = 6;
 
 var createOnBoot = function(){
     var installation_query = new AV.Query(Installation);
@@ -147,8 +148,7 @@ var incExpire = function(id){
 var maintainExpire = function(){
     Object.keys(notification_cache).forEach(function(installationId){
         incExpire(installationId);
-        console.log(notification_cache[installationId].deviceType);
-        console.log(installationId + " " + notification_cache[installationId].expire);
+
         if(notification_cache[installationId].expire <= 0){
             var msg = {
                 "type": "collect-data"
@@ -163,6 +163,11 @@ var maintainExpire = function(){
 };
 
 var pushAIMessage = function(installationId, msg){
+    console.log("pushAIMessage " + installationId);
+    if(!notification_cache[installationId]){
+        console.log("Invalid insatallationId");
+        return;
+    }
     var deviceType = notification_cache[installationId].deviceType;
     if(deviceType === "android" && msg.type === "collect_data"){
         notification_cache[installationId].connection.set(Math.random()*10000, function(){
