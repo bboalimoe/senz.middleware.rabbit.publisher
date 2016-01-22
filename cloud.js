@@ -171,7 +171,7 @@ var pushAIMessage = function(installationId, msg){
     var deviceType = notification_cache[installationId].deviceType;
     if(deviceType === "android" && msg.type === "collect_data"){
         notification_cache[installationId].connection.set(Math.random()*10000, function(){
-            logger.debug("\<Sended Msg....\>" , installationId);
+            logger.debug("\<Sended Android Msg....\>" , installationId);
         })
     }
 
@@ -194,7 +194,7 @@ var pushAIMessage = function(installationId, msg){
         if(apnConnection && device){
             apnConnection.pushNotification(note, device);
             apnConnection_dev.pushNotification(note, device);
-            logger.debug("\<Sended Msg....\>" , installationId);
+            logger.debug("\<Sended IOS Msg....\>" , installationId);
         }
     }
 };
@@ -378,7 +378,7 @@ createOnBoot();
 
 AV.Cloud.define('pushAPNMessage', function(req, rep){
     var installationId = req.params.installationId;
-    var source = req.params.source;
+    //var source = req.params.source;
     var msg = {
         type: req.params.type,
         status: req.params.status,
