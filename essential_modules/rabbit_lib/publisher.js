@@ -11,7 +11,7 @@ if(process.env.APP_ENV === "prod"){
 }
 
 publishMsg = function(msg, event) {
-    console.log('* The chosen event is ' + event + '\n* The content of Msg is ' + JSON.stringify(msg) + '\n* Sending Msg...\n');
+    //console.log('* The chosen event is ' + event + '\n* The content of Msg is ' + JSON.stringify(msg) + '\n* Sending Msg...\n');
 
     var routing_key = null;
     if(event == "new_motion_arrival"){routing_key = "motion";}

@@ -161,6 +161,7 @@ var maintainExpire = function(){
             createAIConnection(installation_map[installationId]);
         }
     });
+    logger.debug("maintainExpire", new Date().getTime());
     logger.info("maintainExpire", "Timer Schedule!");
 };
 
