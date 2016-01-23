@@ -21,6 +21,7 @@ var app_list = [
     "55bc5d8e00b0cb9c40dec37b"
 ];
 var notification_cache = {};
+var installation_map = {};
 var defaultExpire = 60;
 
 var createOnBoot = function(){
@@ -79,17 +80,14 @@ var createAIConnection = function(installation){
         return;
     }
 
-    if(typeof installation === typeof "string"){
-        installation = notification_cache[installation].installation;
-    }
-
     var deviceType = installation.get("deviceType");
     var installationId = installation.id;
+
+    installation_map[installationId] = installation;
 
     resetExpire(installationId);
 
     notification_cache[installationId].deviceType = deviceType;
-    notification_cache[installationId].installation = installation;
 
     if(deviceType === "ios"){
         var token = installation.get("token");
@@ -160,7 +158,7 @@ var maintainExpire = function(){
             console.log(JSON.stringify(msg));
             pushAIMessage(installationId, msg);
             resetExpire(installationId);
-            createAIConnection(installationId);
+            createAIConnection(installation_map[installationId]);
         }
     });
     logger.info("maintainExpire", "Timer Schedule!");
