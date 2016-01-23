@@ -75,6 +75,10 @@ var removeDupInstallation = function(installations){
 };
 
 var createAIConnection = function(installation){
+    if(!installation){
+        return;
+    }
+
     if(typeof installation === typeof "string"){
         installation = notification_cache[installation].installation;
     }
