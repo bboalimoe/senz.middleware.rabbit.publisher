@@ -1,7 +1,5 @@
 var rabbit = require('wascally');
 var configuration = require('./configuration.js');
-var log = require("../utils/logger").log;
-var logger = new log("rabbitmq pub");
 
 
 var env = null;
@@ -13,8 +11,7 @@ if(process.env.APP_ENV === "prod"){
 }
 
 publishMsg = function(msg, event) {
-    logger.info("",'------ Sending ------');
-    logger.info("",'* The chosen event is ' + event + '\n* The content of Msg is ' + msg + '\n* Sending Msg...\n');
+    console.log('* The chosen event is ' + event + '\n* The content of Msg is ' + JSON.stringify(msg) + '\n* Sending Msg...\n');
 
     var routing_key = null;
     if(event == "new_motion_arrival"){routing_key = "motion";}
@@ -37,7 +34,6 @@ publishMsg = function(msg, event) {
 };
 
 exports.publishMessage = function(msg, event){
-    //logger.info("","topo is " + JSON.stringify(configuration.topology) );
     rabbit.configure(configuration.topology)
         .then(publishMsg(msg, event));
 };

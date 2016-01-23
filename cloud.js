@@ -165,7 +165,7 @@ var maintainExpire = function(){
 };
 
 var pushAIMessage = function(installationId, msg){
-    logger.debug("pushAIMessage " + installationId);
+    logger.debug("pushAIMessage ", installationId);
 
     if(!notification_cache[installationId]){
         logger.error("pushAIMessage", "Invalid insatallationId");
@@ -204,7 +204,7 @@ var pushAIMessage = function(installationId, msg){
 
 setInterval(function(){
     maintainExpire();
-}, 10000);
+}, 10 * 1000);
 
 createOnBoot();
 
@@ -242,27 +242,26 @@ AV.Cloud.define("pushToken", function(req, rep){
 
     var installation_query = new AV.Query(Installation);
     installation_query.equalTo('objectId', installationId);
-    installation_query.find()
+    return installation_query.find()
         .then(
             function(results){
                 var installation = results[0];
                 installation.set('token', token);
                 return installation.save();
-            },
-            function(e){
-                return AV.Promise.error(e);
             })
         .then(
             function(d){
                 notification_cache[installationId] = {};
                 resetExpire(installationId);
                 rep.success('<'+d.id+'>: ' + "push token success!");
-                return createAIConnection(installationId);
-            },
+                return createAIConnection(installation_map[installationId]);
+            })
+        .catch(
             function(e){
                 rep.error(e);
+                logger.error("pushToken", JSON.stringify(e));
                 return AV.Promise.error(e);
-            })
+            });
 });
 
 AV.Cloud.define("createInstallation", function(request, response) {
@@ -376,7 +375,6 @@ AV.Cloud.beforeSave("Log", function(request, response){
     if( pre_type == "location" && pre_source == "internal"){
         var backup_location = {"lat":pre_location.latitude, "lng":pre_location.longitude};
         var c_location = converter.toBaiduCoordinate(pre_location.longitude, pre_location.latitude);
-        console.log("fuck");
         var source = "baidu offline converter WGS to baidu";
         var location = pre_location;
         location.latitude = c_location.lat;
@@ -420,41 +418,29 @@ AV.Cloud.afterSave('Log', function(request) {
     var type = request.object.get("type");
     console.log('afterSave', type);
 
-    //var installationId = request.object.get('installation').id;
-    //var sdkVserion = request.object.get('sdkVersion') || "";
-    //if(sdkVserion.slice(-3) == "ios"){
-    //    //flagReset(installationId);
-    //    //createConnection(installationId);
-    //}
-
     var msg = {};
-    logger.debug("Log to Rabbitmq", type);
+    console.log("Log to Rabbitmq", type);
     if(type === "accSensor"){
-
-        logger.info("Log to Rabbitmq",'There is a new motion comming.');
         msg = {
             'object': request.object,
             'timestamp': Date.now()
         };
-        logger.info("Log to Rabbitmq",'The new motion object id: ' + request.object.id);
+        console.log("Log to Rabbitmq",'The new motion object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_motion_arrival');
 
     }
     else if(type === "mic"){
-        //logger.info("Log to Rabbitmq",'There is a new sound comming.');
         msg = {
             'objectId': request.object.id,
             'timestamp': Date.now()
         };
-        //logger.info("Log to Rabbitmq",'The new sound object id: ' + request.object.id);
+        console.log("Log to Rabbitmq",'The new sound object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_sound_arrival');
     }
     else if(type === "location"){
-
-        //check if the coordinate system of ios changes
         var installation_object_id = request.object.get("installation").id;
         if (installation_object_id == "7EVwvG7hfaXz0srEtPGJpaxezs2JrHft" && Math.random() < 0.2  ){
-            geo_now = {lng: request.object.get("location").longitude ,lat: request.object.get("location").latitude };
+            var geo_now = {lng: request.object.get("location").longitude ,lat: request.object.get("location").latitude };
             if(converter.isCoordinateInChaos(geo_now)){
                 alertist.alert_user("shit you");
             }
@@ -462,54 +448,43 @@ AV.Cloud.afterSave('Log', function(request) {
                 console.log("coordinate operated normally")
             }
         }
-        //send data to rabbitmq
-        //logger.info("Log to Rabbitmq",'There is a new location comming.');
         msg = {
             'object': request.object,
             'timestamp': Date.now()
         };
-        //logger.info("Log to Rabbitmq",'The new location object id: ' + request.object.id);
+        console.log("Log to Rabbitmq",'The new location object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_location_arrival');
     }
     else if(type === "calendar"){
-
-        //logger.info("Log to Rabbitmq",'There is a new calendar comming.');
         msg = {
             'object': request.object,
             'timestamp': Date.now()
         };
-        //logger.info("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
+        console.log("Log to Rabbitmq",'The new calendar object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_calendar_arrival');
     }
     else if(type === "application"){
-        //logger.info("Log to Rabbitmq",'There is a new applist comming.');
         msg = {
             'object': request.object,
             'timestamp': Date.now()
         };
-        //logger.info("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
+        console.log("Log to Rabbitmq",'The new applist object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_applist_arrival');
     }
     else if(type === "predictedMotion"){
-
-        //logger.info("Log to Rabbitmq",'There is a new predicted motion comming.');
         msg = {
             'object': request.object,
             'timestamp': Date.now()
         };
-        //logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
-        //console.log(msg)
+        console.log("Log to Rabbitmq",'The new  object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_predicted_motion_arrival');
     }
     else if(type === "sensor"){
-
-        //logger.info("Log to Rabbitmq",'There is a new ios motion sensors data comming.');
         msg = {
             'object': request.object,
             'timestamp': Date.now()
         };
-        //logger.info("Log to Rabbitmq",'The new  object id: ' + request.object.id);
-        //console.log(msg)
+        console.log("Log to Rabbitmq",'The new  object id: ' + request.object.id);
         publisher.publishMessage(msg, 'new_ios_motion_arrival');
     }
     else{

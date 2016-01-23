@@ -20,10 +20,11 @@ var log = function(log_tag) {
             var token = "0e58e820-ec05-46a3-98ee-ba31f16e301c"
         }
         else{
-            var token = '52f63fc6-4162-46a9-839b-4977f64dc11f'
+            token = '52f63fc6-4162-46a9-839b-4977f64dc11f'
         }
-            var logentries = require('node-logentries');
-        var log = logentries.logger({
+
+        var logentries = require('node-logentries');
+        log = logentries.logger({
             token: token
         });
     }
