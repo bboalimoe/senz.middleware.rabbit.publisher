@@ -43,6 +43,7 @@ var createOnBoot = function(){
             var connection_promises = [];
             installation_lists.forEach(function(installations){ //every app's installation record
                 var de_weight_installations = removeDupInstallation(installations);
+                logger.debug("createOnBoot", de_weight_installations);
                 de_weight_installations.forEach(function(installation){   //certain app's installations
                     connection_promises.push(createAIConnection(installation));
                 })
