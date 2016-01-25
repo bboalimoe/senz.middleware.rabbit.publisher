@@ -181,7 +181,7 @@ var pushAIMessage = function(installationId, msg){
     }
     var deviceType = notification_cache[installationId].deviceType;
     if(deviceType === "android"){
-        if(msg.type === "collect_data"){
+        if(msg.type === "collect_data" || msg.type === "collect-data"){
             var collect_data_ref = new Wilddog(notification_cache[installationId].collect_data_ref);
             collect_data_ref.set(Math.random()*10000, function(){
                 logger.debug("\<Sended Android Msg....\>" , installationId + ": " + msg.type);
