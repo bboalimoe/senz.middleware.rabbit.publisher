@@ -21,7 +21,8 @@ var app_list = [
     "55bc5d8e00b0cb9c40dec37b"
 ];
 var notification_cache = {};
-var installation_map = {};
+var installation_map = {}; //key: installationId, value: installationObj;
+var userId_insatalltionId = {}; //key uid, value: installationId;
 var defaultExpire = 60;
 
 var createOnBoot = function(){
@@ -129,8 +130,13 @@ var createAIConnection = function(installation){
                 })
     }else{
         var uid = installation.get("user").id;
-        var connection = "https://notify.wilddogio.com/configuration/"+ uid + "/content/sensor/collector/period";
-        notification_cache[installationId].connection = new Wilddog(connection);
+        userId_insatalltionId[uid] = installationId;
+        var collect_data_ref = "https://notify.wilddogio.com/configuration/"+ uid + "/content/sensor/collector/period";
+        var notify_ref = "https://notify.wilddogio.com/notification/"+ uid + "/content/";
+        var updatedAt_ref = "https://notify.wilddogio.com/notification/"+ uid + "/updatedAt";
+        notification_cache[installationId].collect_data_ref = collect_data_ref;
+        notification_cache[installationId].notify_ref = notify_ref;
+        notification_cache[installationId].updatedAt_ref = updatedAt_ref;
         return AV.Promise.as(notification_cache[installationId]);
     }
 
@@ -173,10 +179,22 @@ var pushAIMessage = function(installationId, msg){
         return;
     }
     var deviceType = notification_cache[installationId].deviceType;
-    if(deviceType === "android" && msg.type === "collect_data"){
-        notification_cache[installationId].connection.set(Math.random()*10000, function(){
-            logger.debug("\<Sended Android Msg....\>" , installationId);
-        })
+    if(deviceType === "android"){
+        if(msg.type === "collect_data"){
+            var collect_data_ref = new Wilddog(notification_cache[installationId].collect_data_ref);
+            collect_data_ref.set(Math.random()*10000, function(){
+                logger.debug("\<Sended Android Msg....\>" , installationId + ": " + msg.type);
+            });
+        }else{
+            var notify_ref = new Wilddog(notification_cache[installationId].notify_ref + msg.type);
+            notify_ref.set({status: msg.value, timestamp: msg.timestamp, probability: 1}, function(){
+                logger.debug("\<Sended Android Msg....\>" , installationId + ": " + msg.type);
+            });
+            var updatedAt_ref = new Wilddog(notification_cache[installationId].updatedAt_ref);
+            updatedAt_ref.set(new Date().toString(), function(){
+                logger.debug("\<Sended Android Msg....\>" , installationId + ": " + msg.type);
+            })
+        }
     }
 
     if(deviceType === "ios"){
@@ -234,7 +252,21 @@ AV.Cloud.define('pushAPNMessage', function(req, rep){
 
         pushAIMessage(installationId, msg);
     //}
-    rep.success("END!");
+    rep.success("pushAPNMessage END!");
+});
+
+AV.Cloud.define('pushAndroidMessage', function(req, rep){
+    var installationId = userId_insatalltionId[req.params.userId];
+    var msg = {
+        type: req.params.type,
+        value: req.params.value || req.params.val,
+        timestamp: req.params.timestamp
+    };
+    console.log(installationId);
+    console.log(msg);
+    logger.debug("pushAndroidMessage", installationId + ": " +JSON.stringify(msg));
+    pushAIMessage(installationId, msg);
+    rep.success("pushAndroidMessage END!");
 });
 
 AV.Cloud.define("pushToken", function(req, rep){
