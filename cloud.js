@@ -382,6 +382,7 @@ AV.Cloud.define("createInstallation", function(request, response) {
                     //var ca = installation.get("createdAt");
                     var createdAt = installation.createdAt;
                     var userId = installation.get("user").id;
+                    userId_insatalltionId[userId] = installation.id;
                     response.success({"id": installation.id,"createdAt": createdAt, "userId": userId});
                 },
                 error: function (object, error) {
