@@ -24,6 +24,38 @@ var notification_cache = {};
 var installation_map = {}; //key: installationId, value: installationObj;
 var userId_insatalltionId = {}; //key uid, value: installationId;
 var defaultExpire = 60;
+var wilddog_config_default = {
+    "sensor": {
+        "collector": {
+            "isActive": true,
+            "period": 300
+        },
+        "uploader": {
+            "isActive": true,
+            "strategy": "network"
+        }
+    },
+    "location": {
+        "collector": {
+            "isActive": true,
+            "period": 300
+        },
+        "uploader": {
+            "isActive": true,
+            "strategy": "network"
+        }
+    },
+    "calendar": {
+        "collector": {
+            "isActive": true,
+            "period": 300
+        },
+        "uploader": {
+            "isActive": true,
+            "strategy": "wifi"
+        }
+    }
+};
 
 var createOnBoot = function(){
     var installation_query = new AV.Query(Installation);
@@ -133,9 +165,11 @@ var createAIConnection = function(installation){
         var uid = installation.get("user").id;
         userId_insatalltionId[uid] = installationId;
         var collect_data_ref = "https://notify.wilddogio.com/configuration/"+ uid + "/content/sensor/collector/period";
+        var configuration_ref = "https://notify.wilddogio.com/configuration/"+ uid + "/content";
         var notify_ref = "https://notify.wilddogio.com/notification/"+ uid + "/content/";
         var updatedAt_ref = "https://notify.wilddogio.com/notification/"+ uid + "/updatedAt";
         notification_cache[installationId].collect_data_ref = collect_data_ref;
+        notification_cache[installationId].configuration_ref = configuration_ref;
         notification_cache[installationId].notify_ref = notify_ref;
         notification_cache[installationId].updatedAt_ref = updatedAt_ref;
         return AV.Promise.as(notification_cache[installationId]);
@@ -182,10 +216,8 @@ var pushAIMessage = function(installationId, msg){
     var deviceType = notification_cache[installationId].deviceType;
     if(deviceType === "android"){
         if(msg.type === "collect_data" || msg.type === "collect-data"){
-            var collect_data_ref = new Wilddog(notification_cache[installationId].collect_data_ref);
-            collect_data_ref.set(600, function(){
-                logger.debug("\<Sended Android Msg....\>" , installationId + ": " + msg.type);
-            });
+            var configuration_ref = new Wilddog(notification_cache[installationId].configuration_ref);
+
         }else{
             var notify_ref = new Wilddog(notification_cache[installationId].notify_ref + msg.type);
             notify_ref.set({status: msg.value, timestamp: msg.timestamp, probability: 1}, function(){
