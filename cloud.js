@@ -572,7 +572,7 @@ var checkCurStatus = function(installationId, taskId){
 };
 
 var processPushNotification = function(){
-    //console.log(new Date().getTime());
+    console.log(notify_task_cache);
     Object.keys(notify_task_cache).forEach(function(tid){
         var task = notify_task_cache[tid];
         var now = new Date().getTime();
