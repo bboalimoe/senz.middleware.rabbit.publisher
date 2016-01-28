@@ -25,7 +25,7 @@ var notification_cache = {};
 var installation_map = {}; //key: installationId, value: installationObj;
 var userId_insatalltionId = {}; //key uid, value: installationId;
 var defaultExpire = 60;  //采集数据命令的默认超时时间
-var maintainPeriod = 10; //轮训周期
+var maintainPeriod = 10; //轮巡周期
 
 var createOnBoot = function(){
     var installation_query = new AV.Query(Installation);
@@ -230,6 +230,7 @@ var pushAIMessage = function(installationId, msg){
 setInterval(function(){
     maintainExpire();
 }, maintainPeriod * 1000);
+
 
 createOnBoot();
 
