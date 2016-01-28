@@ -8,6 +8,7 @@ var createInstallation = require("./essential_modules/utils/lean_utils.js").crea
 var createUser = require("./essential_modules/utils/lean_utils.js").createUser;
 var converter = require("./essential_modules/utils/coordinate_trans.js");
 var alertist = require("./essential_modules/utils/send_notify.js");
+var strategy = require("./essential_modules/utils/strategy.js");
 var apn = require("apn");
 var zlib = require("zlib");
 var Wilddog = require("wilddog");
@@ -23,39 +24,8 @@ var app_list = [
 var notification_cache = {};
 var installation_map = {}; //key: installationId, value: installationObj;
 var userId_insatalltionId = {}; //key uid, value: installationId;
-var defaultExpire = 60;
-var wilddog_config_default = {
-    "sensor": {
-        "collector": {
-            "isActive": true,
-            "period": 300
-        },
-        "uploader": {
-            "isActive": true,
-            "strategy": "network"
-        }
-    },
-    "location": {
-        "collector": {
-            "isActive": true,
-            "period": 300
-        },
-        "uploader": {
-            "isActive": true,
-            "strategy": "network"
-        }
-    },
-    "calendar": {
-        "collector": {
-            "isActive": true,
-            "period": 300
-        },
-        "uploader": {
-            "isActive": true,
-            "strategy": "wifi"
-        }
-    }
-};
+var defaultExpire = 60;  //采集数据命令的默认超时时间
+var maintainPeriod = 10; //轮训周期
 
 var createOnBoot = function(){
     var installation_query = new AV.Query(Installation);
@@ -75,7 +45,7 @@ var createOnBoot = function(){
             var connection_promises = [];
             installation_lists.forEach(function(installations){ //every app's installation record
                 var de_weight_installations = removeDupInstallation(installations);
-                logger.debug("createOnBoot", de_weight_installations);
+                logger.debug("createOnBoot", de_weight_installations.length);
                 de_weight_installations.forEach(function(installation){   //certain app's installations
                     connection_promises.push(createAIConnection(installation));
                 })
@@ -164,7 +134,7 @@ var createAIConnection = function(installation){
     }else{
         var uid = installation.get("user").id;
         userId_insatalltionId[uid] = installationId;
-        var collect_data_ref = "https://notify.wilddogio.com/configuration/"+ uid + "/content/sensor/collector/period";
+        var collect_data_ref = "https://notify.wilddogio.com/message/"+ uid + "/collect_data";
         var configuration_ref = "https://notify.wilddogio.com/configuration/"+ uid + "/content";
         var notify_ref = "https://notify.wilddogio.com/notification/"+ uid + "/content/";
         var updatedAt_ref = "https://notify.wilddogio.com/notification/"+ uid + "/updatedAt";
@@ -182,9 +152,10 @@ var resetExpire = function(id){
         notification_cache[id] = {};
     }
 
-    notification_cache[id].expire = defaultExpire;
+    notification_cache[id].expire = notification_cache[id].expire_init || defaultExpire;
 };
 var incExpire = function(id){
+    logger.debug("incExpire", notification_cache[id].expire);
     notification_cache[id].expire -= 1;
 };
 
@@ -216,8 +187,10 @@ var pushAIMessage = function(installationId, msg){
     var deviceType = notification_cache[installationId].deviceType;
     if(deviceType === "android"){
         if(msg.type === "collect_data" || msg.type === "collect-data"){
-            var configuration_ref = new Wilddog(notification_cache[installationId].configuration_ref);
-
+            var collect_data_ref = new Wilddog(notification_cache[installationId].collect_data_ref);
+            collect_data_ref.set(Math.random()*10000, function(){
+                logger.debug("\<Sended Android Msg....\>" , installationId + ": " + msg.type);
+            });
         }else{
             var notify_ref = new Wilddog(notification_cache[installationId].notify_ref + msg.type);
             notify_ref.set({status: msg.value, timestamp: msg.timestamp, probability: 1}, function(){
@@ -256,9 +229,39 @@ var pushAIMessage = function(installationId, msg){
 
 setInterval(function(){
     maintainExpire();
-}, 10 * 1000);
+}, maintainPeriod * 1000);
 
 createOnBoot();
+
+AV.Cloud.define("changeCollectFreq", function(req, rep){
+    var userId = req.params.userId;
+    var installationId = req.params.installationId || userId_insatalltionId[userId];
+    var collect_expire = req.params.expire || defaultExpire;
+    var method = req.params.method.toUpperCase();
+    if(!notification_cache[installationId]){
+        return rep.error("Invalid installationId");
+    }
+    if(method == "GET"){
+        return rep.success({installationId: installationId,
+            expire: maintainPeriod*(notification_cache[installationId].expire_init || defaultExpire)});
+    }
+    if(method == "SET"){
+        notification_cache[installationId].expire_init = collect_expire/maintainPeriod;
+        notification_cache[installationId].expire = collect_expire/maintainPeriod;
+        return rep.success("SET: " + installationId);
+    }
+});
+
+AV.Cloud.define('dynamicAndroidConfig', function(req, rep){
+    var userId = req.params.userId;
+    var situation = req.params.situation;
+    var sub_situation = req.params.sub_situation;
+    var installationId = userId_insatalltionId[userId];
+    var wilddog_ref = new Wilddog(notification_cache[installationId].configuration_ref);
+
+    strategy.get_post_wilddog_config(wilddog_ref, userId, situation, sub_situation);
+    rep.success("END: " + userId);
+});
 
 AV.Cloud.define('pushAPNMessage', function(req, rep){
     var installationId = req.params.installationId;
