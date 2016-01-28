@@ -14,6 +14,7 @@ var zlib = require("zlib");
 var Wilddog = require("wilddog");
 var Installation = AV.Object.extend("_Installation");
 var application = AV.Object.extend("Application");
+var NotificationTask = AV.Object.extend("NotificationTask");
 
 
 var app_list = [
@@ -26,6 +27,7 @@ var installation_map = {}; //key: installationId, value: installationObj;
 var userId_insatalltionId = {}; //key uid, value: installationId;
 var defaultExpire = 60;  //采集数据命令的默认超时时间
 var maintainPeriod = 10; //轮巡周期
+var notify_task_cache = {};
 
 var createOnBoot = function(){
     var installation_query = new AV.Query(Installation);
@@ -87,6 +89,9 @@ var createAIConnection = function(installation){
     var deviceType = installation.get("deviceType");
     var installationId = installation.id;
 
+    var uid = installation.get("user").id;
+    userId_insatalltionId[uid] = installationId;
+
     installation_map[installationId] = installation;
 
     resetExpire(installationId);
@@ -132,8 +137,8 @@ var createAIConnection = function(installation){
                     return AV.Promise.error(e);
                 })
     }else{
-        var uid = installation.get("user").id;
-        userId_insatalltionId[uid] = installationId;
+        //var uid = installation.get("user").id;
+        //userId_insatalltionId[uid] = installationId;
         var collect_data_ref = "https://notify.wilddogio.com/message/"+ uid + "/collect_data";
         var configuration_ref = "https://notify.wilddogio.com/configuration/"+ uid + "/content";
         var notify_ref = "https://notify.wilddogio.com/notification/"+ uid + "/content/";
@@ -227,12 +232,6 @@ var pushAIMessage = function(installationId, msg){
     }
 };
 
-setInterval(function(){
-    maintainExpire();
-}, maintainPeriod * 1000);
-
-
-createOnBoot();
 
 AV.Cloud.define("changeCollectFreq", function(req, rep){
     var userId = req.params.userId;
@@ -562,5 +561,87 @@ AV.Cloud.afterSave('Log', function(request) {
         logger.error("Log to Rabbitmq","just saved object type doesn't match any value [sensor],[mic],[location]")
     }
 });
+
+var checkCurStatus = function(installationId, taskId){
+    var msg = {
+        "type": "checkStatus",
+        "timestamp": new Date().getTime(),
+        "taskId": taskId
+    };
+    pushAIMessage(installationId, msg);
+};
+
+var processPushNotification = function(){
+    //console.log(new Date().getTime());
+    Object.keys(notify_task_cache).forEach(function(tid){
+        var task = notify_task_cache[tid];
+        var now = new Date().getTime();
+        if(task.startedAt <= now && now <= task.stoppedAt){
+            task.userIds.forEach(function(uid){
+                checkCurStatus(userId_insatalltionId[uid], task.id);
+            });
+        }
+        if(now >= task.stoppedAt){
+            pushAIMessage(userId_insatalltionId[uid], msg);
+            delete notify_task_cache[tid];
+        }
+    });
+};
+
+AV.Cloud.define("createNotifyTask", function(req, rep){
+    var startedAt = req.params.startedAt;
+    var stoppedAt = req.params.stoppedAt;
+    var timestamp = req.params.timestamp;
+    var userIds = req.params.user_ids;
+    var targetStatus = req.params.targetStatus;
+    var message = req.params.message;
+
+    var task = new NotificationTask();
+    task.set("targetStatus", targetStatus);
+    task.set("startedAt", startedAt);
+    task.set("stoppedAt", stoppedAt);
+    task.set("timestamp", timestamp);
+    task.set("userIds", userIds);
+    task.set("message", message);
+    task.save().then(function(task){
+        notify_task_cache[task.id] = task.attributes;
+        return rep.success({taskId: task.id});
+    }).catch(
+        function(e){
+            return rep.error("create task failed!" + JSON.stringify(e));
+        });
+
+});
+
+AV.Cloud.define("pushCurStatus", function(req, rep){
+    var taskId = req.params.taskId;
+    var timestamp = req.params.timestamp;
+    var curStatus = req.params.curStatus;
+    var installationId = req.params.installationId;
+
+    if(!notify_task_cache[taskId]){
+        return rep.error("Invalid taskId");
+    }
+
+    var gesture = curStatus.gesture;
+    if(gesture == "in_hand"){
+        var msg = notify_task_cache[taskId].message;
+        msg.timestamp = timestamp;
+        console.log("start push APN msg!");
+
+        pushAIMessage(installationId, msg);
+        delete notify_task_cache[taskId];
+    }
+
+    return rep.success("success");
+});
+
+
+
+setInterval(function(){
+    maintainExpire();
+}, maintainPeriod * 1000);
+setInterval(processPushNotification, 60 * 1000);
+createOnBoot();
 
 module.exports = AV.Cloud;
