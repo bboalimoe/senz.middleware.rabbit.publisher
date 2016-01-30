@@ -20,7 +20,8 @@ var NotificationTask = AV.Object.extend("NotificationTask");
 var app_list = [
     "5678df1560b2f2e841665918",
     "564573f660b25b79f067aeef",
-    "55bc5d8e00b0cb9c40dec37b"
+    "55bc5d8e00b0cb9c40dec37b",
+    "56a9be2adf0eea0054fea151"
 ];
 var notification_cache = {};
 var installation_map = {}; //key: installationId, value: installationObj;
@@ -243,7 +244,8 @@ AV.Cloud.define("changeCollectFreq", function(req, rep){
     }
     if(method == "GET"){
         return rep.success({installationId: installationId,
-            expire: maintainPeriod*(notification_cache[installationId].expire_init || defaultExpire)});
+            expire_init: maintainPeriod*(notification_cache[installationId].expire_init || defaultExpire),
+            expire_now: maintainPeriod*(notification_cache[installationId].expire)});
     }
     if(method == "SET"){
         notification_cache[installationId].expire_init = collect_expire/maintainPeriod;
@@ -578,7 +580,7 @@ var processPushNotification = function(){
         var now = new Date().getTime();
         if(task.startedAt <= now && now <= task.stoppedAt){
             task.userIds.forEach(function(uid){
-                checkCurStatus(userId_insatalltionId[uid], task.id);
+                checkCurStatus(userId_insatalltionId[uid], tid);
             });
         }
         if(now >= task.stoppedAt){
